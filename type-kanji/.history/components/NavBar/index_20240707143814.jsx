@@ -11,19 +11,10 @@ export default function NavBar() {
           </p>
         </div>
         <div className="flex w-1/5 justify-evenly text-white font-bold">
-          <h4 className="cursor-pointer hover:text-[#D54B40] ">
-            {" "}
-            <a href="/">HOME</a>{" "}
-          </h4>
-          <h4 className="cursor-pointer hover:text-[#D54B40] ">
-            <a href="/practice">TYPE</a>
-          </h4>
-          <h4 className="cursor-pointer hover:text-[#D54B40] ">
-            <a href="/">STATS</a>
-          </h4>
-          <h4 className="cursor-pointer hover:text-[#D54B40] ">
-            <a href="/">ABOUT</a>
-          </h4>
+          <h4 className="cursor-pointer hover:text-[#D54B40] ">HOME</h4>
+          <h4 className="cursor-pointer hover:text-[#D54B40] ">TYPE</h4>
+          <h4 className="cursor-pointer hover:text-[#D54B40] ">STATS</h4>
+          <h4 className="cursor-pointer hover:text-[#D54B40] ">ABOUT</h4>
         </div>
       </div>
     </nav>

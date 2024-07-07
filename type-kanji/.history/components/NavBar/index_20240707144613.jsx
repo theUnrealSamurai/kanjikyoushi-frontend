@@ -16,7 +16,7 @@ export default function NavBar() {
             <a href="/">HOME</a>{" "}
           </h4>
           <h4 className="cursor-pointer hover:text-[#D54B40] ">
-            <a href="/practice">TYPE</a>
+            <a href="/pr">TYPE</a>
           </h4>
           <h4 className="cursor-pointer hover:text-[#D54B40] ">
             <a href="/">STATS</a>
