@@ -1,0 +1,22 @@
+import React from "react";
+
+export default function KanCard() {
+  return (
+    <div className="w-80 h-32 flex flex-shrink-0 text-white  overflow-hidden bg-black rounded-3xl">
+      <div className="flex justify-center items-center w-1/3 h-full ">
+        <p className="text-5xl font-bold ">分</p>
+      </div>
+      <div className="w-2/3 flex justify-center font-bold flex-col items-start h-full ">
+        <h3>
+          kun yomi: <span className="font-light ml-5">わける, ...</span>{" "}
+        </h3>
+        <h3>
+          on yomi: <span className="font-light ml-5">ブン, フン</span>
+        </h3>
+        <h3>
+          meaning: <span className="font-light ml-5">Minute</span>
+        </h3>
+      </div>
+    </div>
+  );
+}
