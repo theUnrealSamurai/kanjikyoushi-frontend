@@ -4,7 +4,7 @@ import Input from "../Input";
 export default function Practice() {
   return (
     <section>
-      <div className="w-[80%] pt-10 pb-7 px-14  bg-[#453F3F] border-[#D54B40] text-white rounded-2xl border-4 ml-36 my-10 text-2xl ">
+      <div className="w-[80%] py-14  px-14  bg-[#453F3F] border-[#D54B40] text-white rounded-2xl border-2 ml-36 my-10 text-2xl ">
         <div className="w-full  flex justify-end ">
           <p>
             Sentence:{" "}
@@ -13,7 +13,7 @@ export default function Practice() {
             </span>
           </p>
         </div>
-        <div className=" mb-4 ">
+        <div className="bg-pink-400 mb-4 ">
           <p className="text-3xl font-black ">
             自分自身について知らないことがある。
           </p>
@@ -21,13 +21,11 @@ export default function Practice() {
             There is something about yourself that you don't know
           </p>
         </div>
-        <div className="mb-4">
-          <Input  />
+        <div className="">
+          <Input value={"hello"} />
         </div>
         <div>
-          <p className="text-xl font-normal">
-            jibun jishin ni tsuite shiranai koto ga aru
-          </p>
+          <p className="text-xl font-normal">jibun jishin ni tsuite shiranai koto ga aru</p>
         </div>
       </div>
     </section>

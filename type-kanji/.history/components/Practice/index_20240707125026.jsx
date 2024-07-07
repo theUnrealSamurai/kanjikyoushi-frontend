@@ -4,7 +4,7 @@ import Input from "../Input";
 export default function Practice() {
   return (
     <section>
-      <div className="w-[80%] pt-10 pb-7 px-14  bg-[#453F3F] border-[#D54B40] text-white rounded-2xl border-4 ml-36 my-10 text-2xl ">
+      <div className="w-[80%] pt-10 pb-5 px-14  bg-[#453F3F] border-[#D54B40] text-white rounded-2xl border-4 ml-36 my-10 text-2xl ">
         <div className="w-full  flex justify-end ">
           <p>
             Sentence:{" "}
