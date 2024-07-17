@@ -45,7 +45,7 @@ export default function Practice() {
       </div>
       <div className="ml-20 ">
         <h1 className="text-4xl font-semibold text-white">Words</h1>
-        <div className="flex gap-6 overflow-x-scroll none-scroll rounded-3xl mt-5 ml-16 relative ">
+        <div className="flex gap-6 overflow-x-scroll none-scroll rounded-3xl mt-5 ml-24 relative ">
           <WordCard />
           <WordCard />
           <WordCard />

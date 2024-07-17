@@ -2,7 +2,7 @@ import React from "react";
 
 export default function KanjiCard() {
   return (
-    <div className="w-80 h-28 flex flex-shrink-0 text-white  overflow-hidden bg-black rounded-3xl">
+    <div className="w-80 h-3 flex flex-shrink-0 text-white  overflow-hidden bg-black rounded-3xl">
       <div className="flex justify-center items-center w-1/3 h-full ">
         <p className="text-5xl font-bold ">分</p>
       </div>
