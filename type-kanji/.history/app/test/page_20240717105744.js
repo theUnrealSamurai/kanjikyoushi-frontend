@@ -4,7 +4,7 @@ import Input from "../../components/InputTest";
 
 export default function test() {
   return (
-    <section className='min-h-screen'>
+    <section className='min-h-[88vh'>
       {/* Test Button and the test counter */}
       <div className='font-extrabold text-2xl pl-20 pt-10'>
         <p>

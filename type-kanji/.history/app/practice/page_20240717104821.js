@@ -16,7 +16,7 @@ export default function Practice() {
           </p>
         </div>
         <div className=" mb-4 ml-10 ">
-          <p className="text-3xl font-black select-none">
+          <p className="text-3xl font-black ">
             自分自身について知らないことがある。
           </p>
           <p className="font-light mt-2">
@@ -46,7 +46,6 @@ export default function Practice() {
       <div className="ml-20 ">
         <h1 className="text-4xl font-semibold text-white">Words</h1>
         <div className="flex gap-6 overflow-x-scroll none-scroll rounded-3xl mt-5 ml-16 relative ">
-          <WordCard />
           <WordCard />
           <WordCard />
           <WordCard />

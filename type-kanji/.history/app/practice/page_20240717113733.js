@@ -16,7 +16,7 @@ export default function Practice() {
           </p>
         </div>
         <div className=" mb-4 ml-10 ">
-          <p className="text-3xl font-black select-none">
+          <p className="text-3xl font-black sel">
             自分自身について知らないことがある。
           </p>
           <p className="font-light mt-2">

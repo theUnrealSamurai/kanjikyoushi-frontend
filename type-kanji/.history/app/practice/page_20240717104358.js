@@ -5,8 +5,8 @@ import WordCard from "../../components/WordCard";
 
 export default function Practice() {
   return (
-    <section className="min-h-[88vh]">
-      <div className="w-[80%]  pt-10 pb-7 px-14 bg-[#453F3F] border-[#D54B40] text-white rounded-2xl border-4 ml-36 my-10 text-2xl ">
+    <section c>
+      <div className="w-[80%]  pt-10 pb-7 px-14  bg-[#453F3F] border-[#D54B40] text-white rounded-2xl border-4 ml-36 my-10 text-2xl ">
         <div className="w-full  flex justify-end ">
           <p>
             Sentence:{" "}
@@ -16,7 +16,7 @@ export default function Practice() {
           </p>
         </div>
         <div className=" mb-4 ml-10 ">
-          <p className="text-3xl font-black select-none">
+          <p className="text-3xl font-black ">
             自分自身について知らないことがある。
           </p>
           <p className="font-light mt-2">
@@ -46,7 +46,6 @@ export default function Practice() {
       <div className="ml-20 ">
         <h1 className="text-4xl font-semibold text-white">Words</h1>
         <div className="flex gap-6 overflow-x-scroll none-scroll rounded-3xl mt-5 ml-16 relative ">
-          <WordCard />
           <WordCard />
           <WordCard />
           <WordCard />
