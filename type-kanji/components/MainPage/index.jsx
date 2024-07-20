@@ -52,7 +52,7 @@ export default function MainPage() {
       </div>
 
       {/* Page Three */}
-      <div className="h-[200vh] w-full relative -mt-[550px] ">
+      <div className="h-[180vh] w-full relative -mt-[450px] ">
         <div className=" bg-[url('../public/Background2.svg')] absolute inset-0  bg-auto bg-center  bg-no-repeat ">
 
         </div>
