@@ -57,16 +57,17 @@ export default function MainPage() {
       <div className="h-[180vh] w-full relative -mt-[450px] ">
         <div className=" bg-[url('../public/Background2.svg')] absolute inset-0  bg-auto bg-center  bg-no-repeat ">
           <div className="ml-16">
-            <div className="mt-[450px] text-white">
-              <h2 className="text-6xl font-bold">
-                Preparing for JLPT? I got you covered <Image src={zigzag} />
+            <div className="mt-[500px] mb-80 text-white">
+              <h2 className="text-6xl font-bold  w-2/3 relative mb-20">
+                Preparing for JLPT? I got you covered{" "}
+                <Image src={zigzag} className="absolute right-32" width={340} />
               </h2>
-              <p>
+              <p className="text-center text-2xl font-light">
                 The Sentences you type in this website uses the kanji based on
-                your skill level and the JLPT order. As you practice, you'll
-                systematically progress through each level, ensuring a thorough
-                understanding and readiness for the test. Keep Typing and stay
-                consistent. That's all you've got to do
+                your skill level and the JLPT order. <br /> As you practice,
+                you'll systematically progress through each level, ensuring a
+                thorough understanding and readiness for the test. <br /> Keep
+                Typing and stay consistent. That's all you've got to do
               </p>
             </div>
             <div>
