@@ -1,6 +1,8 @@
 import React from "react";
 import Image from "next/image";
 import RedCircle from "../../public/red_circle.svg";
+import Demo from "../../public/demo.svg";
+import zigzag from "../../public/zigzag.svg";
 
 export default function MainPage() {
   return (
@@ -54,14 +56,28 @@ export default function MainPage() {
       {/* Page Three */}
       <div className="h-[180vh] w-full relative -mt-[450px] ">
         <div className=" bg-[url('../public/Background2.svg')] absolute inset-0  bg-auto bg-center  bg-no-repeat ">
-
+          <div className="ml-16">
+            <div className="mt-[450px] text-white">
+              <h2 className="text-6xl font-bold">
+                Preparing for JLPT? I got you covered <Image src={zigzag} />
+              </h2>
+              <p>
+                The Sentences you type in this website uses the kanji based on
+                your skill level and the JLPT order. As you practice, you'll
+                systematically progress through each level, ensuring a thorough
+                understanding and readiness for the test. Keep Typing and stay
+                consistent. That's all you've got to do
+              </p>
+            </div>
+            <div>
+              <h1>Here's a Sneak Peek at What You'll be Doing</h1>
+              <Image src={Demo} />
+            </div>
+          </div>
         </div>
       </div>
 
-
-      <div className="h-screen relative">
-
-      </div>
+      <div className="h-screen relative"></div>
     </section>
   );
 }

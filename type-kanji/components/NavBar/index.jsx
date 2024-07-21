@@ -15,9 +15,7 @@ export default function NavBar() {
             <a href="/">HOME</a>
           </h4>
           <div className="relative group">
-            <h4 className="cursor-pointer hover:text-[#D54B40]">
-              TYPE
-            </h4>
+            <h4 className="cursor-pointer hover:text-[#D54B40]">TYPE</h4>
             <div className="absolute hidden group-hover:block drop-shadow-xl  bg-[#393838] p-5 rounded-md">
               <h4 className="cursor-pointer hover:text-[#D54B40]">
                 <a href="/practice">Practice</a>
