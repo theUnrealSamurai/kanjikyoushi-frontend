@@ -1,7 +1,7 @@
 import React from "react";
-import Input from "../../components/Input";
-import KanjiCard from "../../components/KanjiCard";
-import WordCard from "../../components/WordCard";
+import Input from "../../../components/Input";
+import KanjiCard from "../../../components/KanjiCard";
+import WordCard from "../../../components/WordCard";
 
 export default function Practice() {
   return (
