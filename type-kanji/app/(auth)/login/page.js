@@ -6,8 +6,11 @@ export default function Lgoin() {
   return (
     <main className="h-screen bg-[url('../public/LoginBg.png')] bg-cover bg-center bg-no-repeat ">
       <div className="h-[10%] w-full text-4xl font-bold text-[#D54B40] pt-10 pl-10">
-        T<span className="text-white">Y</span>PE K
-        <span className="text-white">A</span>NJI
+        <a href="/">
+          {" "}
+          T<span className="text-white">Y</span>PE K
+          <span className="text-white">A</span>NJI
+        </a>
       </div>
       <div className="h-[90%] w-full flex justify-center items-center">
         <div className="border-y-4 border-x-2 border-white w-[550px] h-[670px] bg-[#363535] rounded-2xl ">
