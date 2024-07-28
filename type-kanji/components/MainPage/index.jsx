@@ -22,9 +22,12 @@ export default function MainPage() {
           </p>
           <div className="mt-10 flex    items-center">
             <h3 className="mr-10 text-4xl font-bold">Learn it while typing!</h3>
-            <button className="bg-[#D54B40] rounded-2xl text-2xl px-12 py-5 font-semibold">
+            <a
+              href="/practice"
+              className="bg-[#D54B40] rounded-2xl text-2xl px-12 py-5 font-semibold"
+            >
               Start Typing
-            </button>
+            </a>
           </div>
         </div>
       </div>
