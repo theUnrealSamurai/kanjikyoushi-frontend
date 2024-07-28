@@ -1,8 +1,40 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Google from "../../../public/google.svg";
 import Image from "next/image";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Lgoin() {
+  const router = useRouter();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const HandleLogin = async () => {
+    const response = await fetch(
+      "https://8550-2405-1200-312-500-4b1b-782d-f571-e547.ngrok-free.app/home/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: username, password: password }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.user["username"] === username) {
+      console.log("Login Successful");
+      router.push("/");
+    } else {
+      alert("Invalid Username or Password");
+    }
+
+    Cookies.set("access-token", data.access);
+  };
+
   return (
     <main className="h-screen bg-[url('../public/LoginBg.png')] bg-cover bg-center bg-no-repeat ">
       <div className="h-[10%] w-full text-4xl font-bold text-[#D54B40] pt-10 pl-10">
@@ -21,9 +53,13 @@ export default function Lgoin() {
             <div className="flex flex-col mb-5">
               <label className="mb-3 font-semibold">username / email</label>
               <input
-                type="email"
+                type="text"
                 className="bg-black p-4 outline-none rounded-xl"
                 placeholder="type your username / email here"
+                value={username}
+                onChange={({ target }) => {
+                  setUsername(target.value);
+                }}
               />
             </div>
             <div className="flex flex-col relative">
@@ -32,6 +68,10 @@ export default function Lgoin() {
                 type="password"
                 className="bg-black p-4 outline-none rounded-xl"
                 placeholder="type your password here"
+                value={password}
+                onChange={({ target }) => {
+                  setPassword(target.value);
+                }}
               />
               <div className=" right-0 absolute -bottom-8">
                 <a href="">Forgot Password?</a>
@@ -39,8 +79,11 @@ export default function Lgoin() {
             </div>
           </div>
 
-          <div className="h-1/4 w-full px-10 flex flex-col text-white">
-            <button className="bg-[#D54B40] p-3 mb-5 rounded-2xl font-bold text-2xl">
+          <div className="h-1/4 w-full px-10 flex flex-col mb-5 text-white">
+            <button
+              onClick={HandleLogin}
+              className="bg-[#D54B40] p-3 mb-5 rounded-2xl font-bold text-2xl"
+            >
               Login
             </button>
             <button className="bg-white border-2 border-[#D54B40] p-3 text-black rounded-2xl">
