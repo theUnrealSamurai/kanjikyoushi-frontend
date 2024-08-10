@@ -36,7 +36,7 @@ export default function Lgoin() {
   };
 
   return (
-    <main className="h-screen bg-[url('../public/LoginBg.png')] bg-cover bg-center bg-no-repeat ">
+    <main className="h-screen bg-[url('../public/LoginBg.png')] bg-no-repeat bg-cover bg-center ">
       <div className="h-[10%] w-full text-4xl font-bold text-[#D54B40] pt-10 pl-10">
         <a href="/">
           {" "}
