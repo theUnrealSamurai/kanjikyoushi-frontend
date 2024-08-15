@@ -6,10 +6,10 @@ export default function test() {
   return (
     <section className='min-h-screen'>
       {/* Test Button and the test counter */}
-      <div className='font-extrabold text-2xl pl-20 pt-10'>
+      <div className='font-extrabold text-2xl pl-20 text-white pt-10'>
         <p>
           Test:{" "}
-          <span className="bg-[#D54B40] text-black p-2 px-5 rounded-full font-bold">
+          <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
             20
           </span>
         </p>
@@ -32,11 +32,11 @@ export default function test() {
       </div> 
 
       {/* Completed and Skipped Counter */}
-      <div className='flex justify-center text-2xl font-extrabold'>
+      <div className='flex justify-center text-2xl font-extrabold text-white'>
         {/* Completed Counter */}
         <span>
           Completed:{" "}
-          <span className="bg-[#D54B40] text-black p-2 px-5 rounded-full font-bold">
+          <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
             10
           </span>
         </span>
@@ -44,7 +44,7 @@ export default function test() {
         {/* Skipped Counter */}
         <span className="pl-10">
           Skipped:{" "}
-          <span className="bg-[#D54B40] text-black p-2 px-5 rounded-full font-bold">
+          <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
             5
           </span>
         </span>
