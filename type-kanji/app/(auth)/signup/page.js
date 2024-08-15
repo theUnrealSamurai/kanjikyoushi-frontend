@@ -72,7 +72,7 @@ export default function Lgoin() {
                 placeholder="type your email here"
                 value={email}
                 onChange={({ target }) => {
-                  setUsername(target.value);
+                  setEmail(target.value);
                 }}
               />
             </div>
@@ -84,7 +84,7 @@ export default function Lgoin() {
                 placeholder="type your password here"
                 value={password}
                 onChange={({ target }) => {
-                  setUsername(target.value);
+                  setPassword(target.value);
                 }}
               />
             </div>
@@ -97,10 +97,9 @@ export default function Lgoin() {
                 placeholder="type your confirm password here"
                 value={Cpassword}
                 onChange={({ target }) => {
-                  setPassword(target.value);
+                  setCpassword(target.value);
                 }}
               />
-              
             </div>
           </div>
 
