@@ -2,14 +2,12 @@
 import React, { useState, useEffect } from "react";
 import Input from "../../../components/InputTest";
 import Cookies from "js-cookie";
-import toast from "react-hot-toast";
 
 export default function test() {
   const [sentence, setSentence] = useState("");
   const [translation, setTranslation] = useState("");
 
-  const [skipCount, setSkipCount] = useState(0);
-  const [completedCount, setCompletedCount] = useState(0);
+  const [count, setCount] = useState(0);
 
   const authkey = Cookies.get("authToken");
 
@@ -37,61 +35,7 @@ export default function test() {
   }, []);
 
   const HandleOnSkip = async () => {
-    toast.loading("Skipping test...");
     const response = await fetch(
-      "https://server-1khw.onrender.com/type/skip_test",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + authkey,
-        },
-        body: JSON.stringify({ skipped_kanjis: "" }),
-      }
-    );
-    const data = await response.json();
-
-    if (data.message === "Test skipped successfully.") {
-      toast.dismiss();
-      setSkipCount(skipCount + 1);
-      toast.success("Test skipped successfully.");
-      fetchSentence();
-    } else {
-      toast.dismiss();
-      toast.error(data.message);
-    }
-
-    setInputValue("");
-  };
-
-  const HandleSubmit = async () => {
-    toast.loading("Checking sentence...");
-    const Update_response = await fetch(
-      "https://server-1khw.onrender.com/type/test_passed",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + authkey,
-        },
-        body: JSON.stringify({ sentence: sentence }),
-      }
-    );
-
-    const data = await Update_response.json();
-
-    if (data.test_result === "Successful") {
-      toast.dismiss();
-      toast.success("Sentence submitted successfully.");
-      setCompletedCount(completedCount + 1);
-      fetchSentence();
-    } else {
-      toast.dismiss();
-      toast.error(data.test_result);
-    }
-
-    setInputValue("");
-  };
 
   return (
     <section className="min-h-screen">
@@ -118,8 +62,6 @@ export default function test() {
             expected={sentence}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onSkip={HandleOnSkip}
-            onSubmit={HandleSubmit}
           />
         </div>
       </div>
@@ -130,7 +72,7 @@ export default function test() {
         <span>
           Completed:{" "}
           <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
-            {completedCount}
+            10
           </span>
         </span>
 
@@ -138,7 +80,7 @@ export default function test() {
         <span className="pl-10">
           Skipped:{" "}
           <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
-            {skipCount}
+            5
           </span>
         </span>
       </div>

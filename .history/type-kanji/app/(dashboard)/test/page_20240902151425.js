@@ -9,7 +9,6 @@ export default function test() {
   const [translation, setTranslation] = useState("");
 
   const [skipCount, setSkipCount] = useState(0);
-  const [completedCount, setCompletedCount] = useState(0);
 
   const authkey = Cookies.get("authToken");
 
@@ -83,7 +82,6 @@ export default function test() {
     if (data.test_result === "Successful") {
       toast.dismiss();
       toast.success("Sentence submitted successfully.");
-      setCompletedCount(completedCount + 1);
       fetchSentence();
     } else {
       toast.dismiss();
@@ -130,7 +128,7 @@ export default function test() {
         <span>
           Completed:{" "}
           <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
-            {completedCount}
+            10
           </span>
         </span>
 

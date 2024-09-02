@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function InputTest({ value, onSubmit, expected, onSkip, onChange }) {
+export default function Input({ value, onClick, expected, onChange }) {
   const [inputValue, setInputValue] = useState(value || "");
 
   // Check if the inputValue matches the expected value
@@ -21,21 +21,15 @@ export default function InputTest({ value, onSubmit, expected, onSkip, onChange 
         placeholder="Type the above sentence here"
       />
       <button
-        onClick={onSubmit}
+        onClick={onClick}
         disabled={!isMatching} // Disable the button if `isMatching` is false
         className={`w-1/6 p-2 m-2 rounded-2xl font-bold text-black ${
           isMatching
-            ? " bg-[#ff6155] hover:bg-[#e66e65]"
-            : "bg-[#D54B40] cursor-not-allowed"
+            ? "bg-[#D54B40] hover:bg-[#e66e65]"
+            : " cursor-not-allowed"
         }`}
       >
         Submit
-      </button>
-      <button
-        onClick={onSkip}
-        className="bg-[#ff6155] w-1/6 hover:bg-[#e66e65] p-2 m-2 rounded-2xl font-bold text-black"
-      >
-        Skip
       </button>
     </div>
   );

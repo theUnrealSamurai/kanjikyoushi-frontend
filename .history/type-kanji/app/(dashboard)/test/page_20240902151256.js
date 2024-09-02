@@ -9,7 +9,6 @@ export default function test() {
   const [translation, setTranslation] = useState("");
 
   const [skipCount, setSkipCount] = useState(0);
-  const [completedCount, setCompletedCount] = useState(0);
 
   const authkey = Cookies.get("authToken");
 
@@ -80,18 +79,13 @@ export default function test() {
 
     const data = await Update_response.json();
 
-    if (data.test_result === "Successful") {
+    if (data.message === "Sentence updated successfully.") {
       toast.dismiss();
-      toast.success("Sentence submitted successfully.");
-      setCompletedCount(completedCount + 1);
+      toast.success("Sentence updated successfully.");
       fetchSentence();
-    } else {
-      toast.dismiss();
-      toast.error(data.test_result);
     }
-
     setInputValue("");
-  };
+  }
 
   return (
     <section className="min-h-screen">
@@ -119,7 +113,6 @@ export default function test() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onSkip={HandleOnSkip}
-            onSubmit={HandleSubmit}
           />
         </div>
       </div>
@@ -130,7 +123,7 @@ export default function test() {
         <span>
           Completed:{" "}
           <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
-            {completedCount}
+            10
           </span>
         </span>
 

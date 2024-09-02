@@ -21,7 +21,7 @@ export default function InputTest({ value, onSubmit, expected, onSkip, onChange 
         placeholder="Type the above sentence here"
       />
       <button
-        onClick={onSubmit}
+        onClick={onClick}
         disabled={!isMatching} // Disable the button if `isMatching` is false
         className={`w-1/6 p-2 m-2 rounded-2xl font-bold text-black ${
           isMatching

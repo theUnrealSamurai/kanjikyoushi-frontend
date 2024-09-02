@@ -130,7 +130,7 @@ export default function test() {
         <span>
           Completed:{" "}
           <span className="bg-[#D54B40] text-white p-2 px-5 rounded-full font-bold">
-            {completedCount}
+            {}
           </span>
         </span>
 

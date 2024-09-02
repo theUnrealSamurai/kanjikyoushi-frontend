@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function InputTest({ value, onSubmit, expected, onSkip, onChange }) {
+export default function InputTest({ value, onClick, expected, onSkip }) {
   const [inputValue, setInputValue] = useState(value || "");
 
   // Check if the inputValue matches the expected value
@@ -17,11 +17,11 @@ export default function InputTest({ value, onSubmit, expected, onSkip, onChange 
         className="w-5/6 ml-10 p-1 placeholder:font-light placeholder:text-lg bg-black outline-none"
         type="text"
         value={inputValue}
-        onChange={onChange}
+        on
         placeholder="Type the above sentence here"
       />
       <button
-        onClick={onSubmit}
+        onClick={onClick}
         disabled={!isMatching} // Disable the button if `isMatching` is false
         className={`w-1/6 p-2 m-2 rounded-2xl font-bold text-black ${
           isMatching
