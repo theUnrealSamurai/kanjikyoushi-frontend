@@ -4,6 +4,7 @@ import Google from "../../../public/google.svg";
 import Image from "next/image";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function Lgoin() {
   const router = useRouter();
@@ -12,8 +13,9 @@ export default function Lgoin() {
   const [password, setPassword] = useState("");
 
   const HandleLogin = async () => {
+    toast.loading("Logging in...");
     const response = await fetch(
-      "https://8550-2405-1200-312-500-4b1b-782d-f571-e547.ngrok-free.app/home/login",
+      "https://server-1khw.onrender.com/home/login",
       {
         method: "POST",
         headers: {
@@ -24,15 +26,21 @@ export default function Lgoin() {
     );
 
     const data = await response.json();
+    console.log(data);
 
-    if (data.user["username"] === username) {
-      console.log("Login Successful");
-      router.push("/");
+    if (data.user) {
+      if (data.user["username"] === username) {
+        toast.dismiss();
+        console.log("Login Successful");
+        toast.success("Login Successful");
+        Cookies.set("authToken", data.access);
+        router.push("/");
+      }
     } else {
-      alert("Invalid Username or Password");
-    }
+      toast.dismiss();
 
-    Cookies.set("access-token", data.access);
+      toast.error("Invalid Username or Password");
+    }
   };
 
   return (

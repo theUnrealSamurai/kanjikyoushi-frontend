@@ -4,8 +4,9 @@ import Google from "../../../public/google.svg";
 import Image from "next/image";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
-export default function Lgoin() {
+export default function SignUp() {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -13,28 +14,48 @@ export default function Lgoin() {
   const [email, setEmail] = useState("");
   const [Cpassword, setCpassword] = useState("");
 
-  const HandleLogin = async () => {
+  const HandleSignup = async () => {
+    if (password !== Cpassword) {
+      toast.dismiss();
+      toast.error("Password and Confirm Password does not match");
+      return;
+    }
+
+    toast.loading("Signing up...");
     const response = await fetch(
-      "https://8550-2405-1200-312-500-4b1b-782d-f571-e547.ngrok-free.app/home/login",
+      "https://server-1khw.onrender.com/home/signup",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: username, password: password }),
+        body: JSON.stringify({
+          username: username,
+          password: Cpassword,
+          email: email,
+        }),
       }
     );
 
     const data = await response.json();
+    console.log(data);
 
-    if (data.user["username"] === username) {
-      console.log("Login Successful");
-      router.push("/");
+    if (data.user) {
+      if (data.user["username"] === username) {
+        toast.dismiss();
+        console.log("Sign up Successful");
+        toast.success("Sign up Successful");
+        Cookies.set("authToken", data.access);
+        router.push("/");
+      }
+    } else if (data.password) {
+      toast.dismiss();
+      toast.error(data.password);
     } else {
-      alert("Invalid Username or Password");
+      toast.dismiss();
+      // alert("Invalid Username or Password");
+      toast.error("Invalid Username or Password");
     }
-
-    Cookies.set("access-token", data.access);
   };
 
   return (
@@ -105,10 +126,10 @@ export default function Lgoin() {
 
           <div className="h-1/6 w-full px-10 pt-24 flex flex-col mb-5 text-white">
             <button
-              onClick={HandleLogin}
+              onClick={HandleSignup}
               className="bg-[#D54B40] p-3 mb-5 rounded-2xl font-bold text-2xl"
             >
-              Login
+              Sign Up
             </button>
             <button className="bg-white border-2 border-[#D54B40] p-3 text-black rounded-2xl">
               <div className="flex  justify-center items-center">
