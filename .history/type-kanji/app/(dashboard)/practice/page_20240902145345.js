@@ -57,7 +57,6 @@ export default function Practice() {
     if (data.message === "Sentence updated successfully.") {
       toast.dismiss();
       toast.success("Sentence updated successfully.");
-      setCount(count + 1);
       fetchSentence();
     } else {
       toast.dismiss();

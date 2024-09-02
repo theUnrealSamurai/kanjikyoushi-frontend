@@ -57,7 +57,6 @@ export default function Practice() {
     if (data.message === "Sentence updated successfully.") {
       toast.dismiss();
       toast.success("Sentence updated successfully.");
-      setCount(count + 1);
       fetchSentence();
     } else {
       toast.dismiss();
@@ -74,7 +73,7 @@ export default function Practice() {
           <p>
             Sentence:{" "}
             <span className="bg-[#D54B40] text-black p-2 px-5 rounded-full font-bold">
-              {count}
+              
             </span>
           </p>
         </div>
