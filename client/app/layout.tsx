@@ -1,6 +1,5 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
   title: "Type Kanji",
@@ -9,10 +8,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
-    <html lang="en">
-      <body className="bg-main-gray h-screen">
-        <NavBar />
-        <main>{children}</main>
+    <html lang="en" className="h-full">
+      <body className="bg-main-gray flex flex-col min-h-screen">
+        <main className="flex-grow">{children}</main>
       </body>
     </html>
   );
