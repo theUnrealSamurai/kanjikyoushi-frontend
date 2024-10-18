@@ -37,7 +37,7 @@ export default function Practice() {
 
             <div className="flex flex-row text-white ml-8 flex-grow overflow-hidden ">
                 {/* kanji cards */}
-                <div className="flex flex-col w-1/5 overflow-hidden mb-8">
+                <div className="flex flex-col w-1/4 overflow-hidden mb-8">
                     <h2 className="m-2 text-2xl font-bold text-left">Kanji Cards</h2>
                     <div className="ml-4 overflow-y-auto flex-grow">
                         {[...Array(13)].map((_, index) => (

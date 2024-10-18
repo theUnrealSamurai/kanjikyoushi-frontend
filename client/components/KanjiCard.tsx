@@ -1,6 +1,6 @@
 export default function KanjiCard() {
     return (
-        <div className="bg-black text-white m-2 rounded-2xl h-fit w-64">
+        <div className="bg-black text-white m-2 rounded-2xl h-fit w-71">
             <div className="flex flex-row m-2 items-center">
                 {/* Kanji */}
                 <p className="font-bold text-4xl w-1/4 text-center">分</p>
