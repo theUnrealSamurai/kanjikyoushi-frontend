@@ -3,11 +3,11 @@ export default function Signup() {
         <div className="flex flex-col min-h-screen bg-main-gray">
             <div className="text-2xl font-bold p-4">
             <div className="text-2xl font-bold p-4">
-                <span className="text-white">T</span>
-                <span className="text-main-red">Y</span>
-                <span className="text-white">PE K</span>
-                <span className="text-main-red">A</span>
-                <span className="text-white">NJI</span>
+                <span className="text-main-red">T</span>
+                <span className="text-white">Y</span>
+                <span className="text-main-red">PE K</span>
+                <span className="text-white">A</span>
+                <span className="text-main-red">NJI</span>
             </div>
             </div>
             <div className="flex items-center justify-center flex-grow">
