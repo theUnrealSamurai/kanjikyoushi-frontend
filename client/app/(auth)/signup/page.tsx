@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Signup() {
     return (
         <div className="flex flex-col min-h-screen bg-main-gray">
@@ -24,7 +26,7 @@ export default function Signup() {
                         <input type="password" className="mx-2 mb-2 py-1 px-2 bg-black rounded-lg placeholder:text-sm placeholder:text-gray" placeholder="confirm password" />
                         <button className="mx-2 mt-2 p-1 px-4 bg-main-red rounded-2xl font-bold">Sign Up</button>
                         <button className="m-2 p-1 px-4 bg-white text-black rounded-2xl font-bold">Sign Up with Google</button>
-                        <p className="text-center mt-2">Already have an account? <a href="/login/" className="text-main-red">Login</a></p>
+                        <p className="text-center mt-2">Already have an account? <Link href="/login/" className="text-main-red font-bold">Login</Link></p>
                     </div>
                 </div>
             </div>
