@@ -1,20 +1,28 @@
-export default function Explanations() {
+interface ExplanationsProps {
+    explanations: string | undefined;
+}
+
+export default function Explanations({ explanations }: ExplanationsProps) {
+    if (typeof explanations !== 'string' || explanations.trim() === '') {
+        return <div/>;
+    }
+    const lines = explanations.split('\n');
+    const title = lines[0];
+    const description = lines.slice(1);
+
+
     return(
-        <div className="flex flex-col bg-black w-[70%] h-fit m-2 text-white rounded-2xl">
+        <div className="flex flex-col bg-black w-[90%] h-fit m-2 text-white rounded-2xl">
             <div className="m-2 flex flex-col ">
                 {/* Word Header */}
-                <p className="font-bold ml-2">kotogaaru  ことがある</p>
+                <p className="font-bold ml-2">{title}</p>
                 <hr className="bg-white m-1"/>
                 <div className="ml-4">
-                    <p>1.[exp, v5r - i] 《after the past tense form of a verb》 (for something) to have occurred; to have done(something)</p>
-                    <p>2.[v5r - i, exp](for something) to happen on occasion</p>
+                    {description.map((line, index) => (
+                        <p key={index}>{line}</p>
+                    ))}
                 </div>
             </div>
         </div>
     );
 }
-
-
-// * kotogaaru  ことがある
-// 1.[exp, v5r - i] 《after the past tense form of a verb》 (for something) to have occurred; to have done(something)
-// 2.[v5r - i, exp](for something) to happen on occasion

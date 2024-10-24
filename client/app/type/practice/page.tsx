@@ -1,7 +1,55 @@
+"use client";
+
 import KanjiCard from "@/components/KanjiCard";
 import Explanations from "@/components/Explanations";
+import Cookies from "js-cookie";
+import React, { useEffect, useState } from "react";
+
+interface KanjiData {
+    kun_readings: string[];
+    on_readings: string[];
+    meanings: string[];
+    kanji: string;
+}
+
 
 export default function Practice() {
+    const authkey = Cookies.get("accessToken");
+    const [jpSentence, setJpSentence] = useState("");
+    const [romaji, setRomaji] = useState("");
+    const [engSentence, setEngSentence] = useState("");
+    const [kanji, setKanji] = useState<KanjiData[]>([]);
+    const [explanations, setExplanations] = useState<string[]>([]);
+
+
+    const fetchSentence = async () => {
+        const response = await fetch(
+            process.env.NEXT_PUBLIC_HOST + "/type/render_practice",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authkey
+                },
+            }
+        );
+        const data = await response.json();
+        console.log(data);
+        setJpSentence(data["japanese"]);
+        setRomaji(data["romaji"]);
+        setEngSentence(data["english"]);
+        setKanji(data["kanji_data"]);
+        setExplanations(data["definitions"]);  
+        console.log(data["definitions"]);
+        console.log(typeof data["definitions"]);
+
+    };
+
+    useEffect(() => {
+        fetchSentence();
+    }, []);
+
+
     return (
         <div className="h-full flex flex-col overflow-hidden">
             {/* The Box */}
@@ -14,10 +62,10 @@ export default function Practice() {
                     </div>
 
                     {/* Row 2  Japanese Sentence*/}
-                    <p className="font-bold mx-1 ml-4 mt-2 text-2xl">自分自身について知らないことがある。</p>
+                    <p className="font-bold mx-1 ml-4 mt-2 text-2xl">{jpSentence}</p>
 
                     {/* Row 3 English Translation*/}
-                    <p className="font-bold m-1 ml-4">There is something about yourself that you don't know</p>
+                    <p className="font-bold m-1 ml-4">{engSentence}</p>
 
                     {/* Row 4  Input box and the Submit Button*/}
                     <div className="flex flex-row">
@@ -31,7 +79,7 @@ export default function Practice() {
                     </div>
 
                     {/* Row 5  romaji text*/}
-                    <p className="m-1 ml-4">Jibun jishin ni tsuite shiranai koto ga aru.</p>
+                    <p className="m-1 ml-4">{romaji}</p>
                 </div>
             </div>
 
@@ -40,8 +88,15 @@ export default function Practice() {
                 <div className="flex flex-col w-1/4 overflow-hidden mb-8">
                     <h2 className="m-2 text-2xl font-bold text-left">Kanji Cards</h2>
                     <div className="ml-4 overflow-y-auto flex-grow">
-                        {[...Array(13)].map((_, index) => (
-                            <KanjiCard key={index} />
+                        {/* Kanji Cards go here */}
+                        {kanji.map((item, index) => (
+                            <KanjiCard
+                                key={`${item.kanji}-${index}`}
+                                kanji={item.kanji}
+                                onyomi={item.on_readings.join(", ")}
+                                kunyomi={item.kun_readings.join(", ")}
+                                meaning={item.meanings.join(", ")}
+                            />
                         ))}
                     </div>
                 </div>
@@ -50,8 +105,9 @@ export default function Practice() {
                 <div className="flex flex-col w-full overflow-hidden mb-8">
                     <h2 className="m-2 text-2xl font-bold text-left">Words and Explanations</h2>
                     <div className="ml-8 overflow-y-auto flex-grow">
-                        {[...Array(13)].map((_, index) => (
-                            <Explanations key={index} />
+                        {/* Explanations go here */}
+                        {explanations.map((item, index) => (
+                            <Explanations key={index} explanations={item} />
                         ))}
                     </div>
                 </div>
