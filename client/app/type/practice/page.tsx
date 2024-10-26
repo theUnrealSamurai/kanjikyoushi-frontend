@@ -20,6 +20,7 @@ export default function Practice() {
     const [engSentence, setEngSentence] = useState("");
     const [kanji, setKanji] = useState<KanjiData[]>([]);
     const [explanations, setExplanations] = useState<string[]>([]);
+    const [learnedKanji, setLearnedKanji] = useState<string[]>([]);
 
 
     const fetchSentence = async () => {
@@ -40,8 +41,7 @@ export default function Practice() {
         setEngSentence(data["english"]);
         setKanji(data["kanji_data"]);
         setExplanations(data["definitions"]);  
-        console.log(data["definitions"]);
-        console.log(typeof data["definitions"]);
+        setLearnedKanji(data["learned_kanji"]);
 
     };
 
@@ -51,14 +51,14 @@ export default function Practice() {
 
 
     return (
-        <div className="h-full flex flex-col overflow-hidden">
+        <div className="h-full flex flex-col overflow-hidden items-center">
             {/* The Box */}
             <div className="bg-[#453F3F] m-6 flex flex-col text-white box-border w-3/4 max-w-4xl ml-10 rounded-3xl border-2 border-main-red drop-shadow-2xl shadow-white">
                 <div className="m-2 flex flex-col">
                     {/* Row 1 Kanji Count and the counter*/}
-                    <div className="flex justify-end">
-                        <p className="font-bold">Kanji Count: </p>
-                        <p className="px-1 mx-2 bg-main-red rounded-lg font-bold">3856792</p>
+                    <div className="flex justify-end mt-1">
+                        <p className="font-bold">Kanjis Learned: </p>
+                        <p className="px-1 mx-2 bg-main-red rounded-lg font-bold">{learnedKanji}</p>
                     </div>
 
                     {/* Row 2  Japanese Sentence*/}
@@ -83,11 +83,12 @@ export default function Practice() {
                 </div>
             </div>
 
-            <div className="flex flex-row text-white ml-8 flex-grow overflow-hidden ">
+            {/* Kanji Cards and Explanations */}
+            <div className="flex flex-col text-white ml-8 w-[80%]">
                 {/* kanji cards */}
-                <div className="flex flex-col w-1/4 overflow-hidden mb-8">
-                    <h2 className="m-2 text-2xl font-bold text-left">Kanji Cards</h2>
-                    <div className="ml-4 overflow-y-auto flex-grow">
+                <div className="flex flex-col mb-4">
+                    <h2 className="mx-2 mt-2 text-2xl font-bold text-left">Kanji Cards</h2>
+                    <div className="ml-4 pb-2 flex flex-row overflow-x-auto">
                         {/* Kanji Cards go here */}
                         {kanji.map((item, index) => (
                             <KanjiCard
@@ -100,16 +101,16 @@ export default function Practice() {
                         ))}
                     </div>
                 </div>
+            </div>
 
-                {/* Explanations */}
-                <div className="flex flex-col w-full overflow-hidden mb-8">
-                    <h2 className="m-2 text-2xl font-bold text-left">Words and Explanations</h2>
-                    <div className="ml-8 overflow-y-auto flex-grow">
-                        {/* Explanations go here */}
-                        {explanations.map((item, index) => (
-                            <Explanations key={index} explanations={item} />
-                        ))}
-                    </div>
+
+            {/* Explanations */}
+            <div className="flex flex-col overflow-auto mb-8 ml-8 w-[80%] text-white">
+                <h2 className="mx-2 mb-4 text-2xl font-bold text-left">Words and Explanations</h2>
+                <div className="ml-4 overflow-y-auto flex-grow overflow-auto">
+                    {explanations.map((item, index) => (
+                        <Explanations key={index} explanations={item} />
+                    ))}
                 </div>
             </div>
         </div>
