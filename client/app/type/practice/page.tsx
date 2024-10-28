@@ -23,6 +23,42 @@ export default function Practice() {
     const [learnedKanji, setLearnedKanji] = useState<string[]>([]);
 
 
+    const [userInput, setUserInput] = useState("");
+
+    const handleSubmit = () => {
+        if (userInput.trim() === jpSentence.trim()) {
+            updatePractice();
+            fetchSentence();
+        } else {
+            alert("Please correct your sentence and try again.");
+        }
+    };
+
+    const updatePractice = async () => {
+        const response = await fetch(
+            process.env.NEXT_PUBLIC_HOST + "/type/update_practice",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authkey,
+                },
+                body: JSON.stringify({
+                    "sentence": userInput,
+                }),
+            }
+        );
+        const data = response.json();
+
+        if (response.ok) {
+            setUserInput("");
+        }
+        else {
+            alert("Something didn't go right.");
+        }
+    };
+
+
     const fetchSentence = async () => {
         const response = await fetch(
             process.env.NEXT_PUBLIC_HOST + "/type/render_practice",
@@ -71,11 +107,15 @@ export default function Practice() {
                     <div className="flex flex-row">
                         <input
                             type="text"
+                            value={userInput}
+                            onChange={(e) => setUserInput(e.target.value)}
                             className="m-2 px-2 pl-2 w-full bg-black border-2 border-white rounded-lg
                         text-sm placeholder:font-light outline-none type=text placeholder:text-sm"
                             placeholder=" Enter the Japanese Sentence here"
                         />
-                        <button className="m-2 p-2 px-4 bg-main-red rounded-2xl font-semibold">Submit</button>
+                        <button 
+                            onClick={handleSubmit}
+                            className="m-2 p-2 px-4 bg-main-red rounded-2xl font-semibold">Submit</button>
                     </div>
 
                     {/* Row 5  romaji text*/}
