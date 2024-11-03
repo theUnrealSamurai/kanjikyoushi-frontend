@@ -16,7 +16,6 @@ export default function Signup() {
     const router = useRouter();
 
     useEffect(() => {
-        // Check form validity
         const isValid =
             username.length > 0 &&
             email.length > 0 &&
@@ -51,7 +50,7 @@ export default function Signup() {
                 const data = await response.json();
                 toast.success("Signup successful", { id: toastId });
                 Cookies.set("accessToken", data.access);
-                router.push("/");
+                router.push("/type/onboard");
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message || "Signup failed", { id: toastId });
