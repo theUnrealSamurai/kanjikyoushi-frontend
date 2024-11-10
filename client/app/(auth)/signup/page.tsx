@@ -5,6 +5,8 @@ import { SyntheticEvent, useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
+import AuthLogo from "@/components/AuthLogo";
+
 
 export default function Signup() {
     const [username, setUsername] = useState("");
@@ -63,13 +65,7 @@ export default function Signup() {
 
     return (
         <div className="flex flex-col min-h-screen bg-main-gray">
-            <div className="text-2xl font-bold p-4">
-                <span className="text-main-red">T</span>
-                <span className="text-white">Y</span>
-                <span className="text-main-red">PE K</span>
-                <span className="text-white">A</span>
-                <span className="text-main-red">NJI</span>
-            </div>
+            <AuthLogo />
             <div className="flex items-center justify-center flex-grow">
                 <div className="flex flex-col border-2 text-white border-main-red h-fit w-96 rounded-2xl drop-shadow-lg shadow-white bg-[#453F3F]">
                     <div className="flex flex-col m-2">

@@ -103,7 +103,7 @@ export default function Onboard() {
                                             checked={kanjiList.every(kanji => selectedKanji.has(kanji))}
                                         />
                                     </div>
-                                    <div className="flex flex-wrap mb-4 ml-2 flex-grow">
+                                    <div className="flex flex-wrap text-white mb-4 ml-2 flex-grow">
                                         {kanjiList.map((kanji) => (
                                             <div
                                                 key={kanji}
@@ -111,7 +111,7 @@ export default function Onboard() {
                                                 onClick={() => toggleKanji(kanji)}
                                             >
                                                 <div
-                                                    className={`p-2 border-4 ${selectedKanji.has(kanji) ? 'border-main-red' : 'border-white'} hover:border-main-red rounded-xl bg-black cursor-pointer`}
+                                                    className={`p-2 border-2 ${selectedKanji.has(kanji) ? 'border-main-red' : 'border-white'} hover:border-main-red rounded-xl bg-black cursor-pointer`}
                                                 >
                                                     {kanji}
                                                 </div>

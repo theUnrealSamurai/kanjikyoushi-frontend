@@ -8,14 +8,15 @@ export default function NavBar() {
 
     return (
         <nav className="w-screen flex justify-center">
-            <div className="w-[98%] flex justify-between mt-4 bg-main-gray p-5 rounded-2xl drop-shadow-lg shadow-lg">
+            <div className="w-[98%] flex justify-between mt-4 bg-main-gray p-4 rounded-2xl drop-shadow-lg shadow-lg">
                 <div className="pl-3 w-4/5 h-full">
-                    <a href="/" className="font-bold text-main-red">
-                        T<span className="text-white">Y</span>PE K
-                        <span className="text-white">A</span>NJI
+                    <a href="/" className="font-bold">
+                        <h1 className="text-white font-bold text-2xl">
+                            <span className="text-main-red">Type</span><span>Kanji</span>
+                        </h1>
                     </a>
                 </div>
-                <div className="flex w-1/5 justify-end text-white font-bold">
+                <div className="flex w-1/5 justify-end text-white font-bold text-xl">
                     <div className="relative group">
                         <h4 className="cursor-pointer hover:text-main-red pr-2 mx-4"><span className={pathname === '/type/practice' || pathname === '/type/revision' ? 'text-main-red underline decoration-main-red decoration-2 underline-offset-8': ''}> T</span><span className={pathname === '/type/revision' || pathname === '/type/practice' ? 'underline decoration-main-red decoration-2 underline-offset-8': ''}>YPE </span></h4>
                         <div className="absolute hidden group-hover:block drop-shadow-xl  bg-main-gray p-5 rounded-md">
