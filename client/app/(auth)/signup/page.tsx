@@ -52,6 +52,8 @@ export default function Signup() {
                 const data = await response.json();
                 toast.success("Signup successful", { id: toastId });
                 Cookies.set("accessToken", data.access);
+                Cookies.set("refreshToken", data.refresh);
+                Cookies.set("username", data.user.username);
                 router.push("/type/onboard");
             } else {
                 const errorData = await response.json();

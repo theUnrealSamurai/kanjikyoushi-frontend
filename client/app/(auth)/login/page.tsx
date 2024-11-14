@@ -34,6 +34,8 @@ export default function Login() {
             console.log(data);
             toast.success("Login successful");
             Cookies.set("accessToken", data.access);
+            Cookies.set("refreshToken", data.refresh);
+            Cookies.set("username", data.user.username);
             router.push("/");
 
         } else {
