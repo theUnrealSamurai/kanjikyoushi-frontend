@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 
 interface KanjiData {
     kanji: string;
-    on_readings: String[];
-    kun_readings: String[];
-    meanings: String[];
+    on_readings: string[];
+    kun_readings: string[];
+    meanings: string[];
 }
 
 

@@ -78,7 +78,7 @@ export default function Onboard() {
         <div className='h-screen flex flex-col'>
             <div className='flex-1 overflow-y-auto'>
                 <div className='flex justify-center'>
-                    <h1 className='text-2xl font-bold text-white mt-10'>Hey! before we begin let's quickly pick everything that you already know</h1>
+                    <h1 className='text-2xl font-bold text-white mt-10'>Hey! before we begin let&apos;s quickly pick everything that you already know</h1>
                 </div>
                 <div className='border-2 my-5 mx-auto mb-24 w-[70%] flex flex-col items-center bg-[#453F3F] rounded-3xl p-12'>
                     {levels.map((level, index) => (

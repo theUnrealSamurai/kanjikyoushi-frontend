@@ -48,7 +48,6 @@ export default function Practice() {
                 }),
             }
         );
-        const data = response.json();
 
         if (response.ok) {
             setUserInput("");

@@ -60,13 +60,13 @@ export default function Revision() {
         const authkey = Cookies.get("accessToken");
 
         // Get a dict of all the kanji and their ratings from the front end
-        let ratings: { [key: string]: string } = {};
-        let kanjiCards = document.getElementsByClassName("kanji-card");
+        const ratings: { [key: string]: string } = {};
+        const kanjiCards = document.getElementsByClassName("kanji-card");
         console.log(kanjiCards);
         for (let i = 0; i < kanjiCards.length; i++) {
-            let kanji = kanjiCards[i].querySelector(".kanji")?.textContent;
-            let ratingElement = kanjiCards[i].querySelector(".rating");
-            let rating = ratingElement ? parseInt(ratingElement.textContent || '0', 10) : 0;
+            const kanji = kanjiCards[i].querySelector(".kanji")?.textContent;
+            const ratingElement = kanjiCards[i].querySelector(".rating");
+            const rating = ratingElement ? parseInt(ratingElement.textContent || '0', 10) : 0;
             if (kanji) {
                 if (rating  === 1)
                     ratings[kanji] = "again";
@@ -159,7 +159,7 @@ export default function Revision() {
                 <div className="flex flex-col text-white box-border w-full rounded-3xl">
                     <div className="flex overflow-x-auto p-4 scrollbar-thin scrollbar-thumb-main-red scrollbar-track-gray-700">
                         <div className="flex flex-nowrap">
-                            {kanji.map((item, index) => (
+                            {kanji.map((item) => (
                                 <KanjiStarCard key={item.kanji} kanjidata={item} />
                             ))}
                         </div>
@@ -221,7 +221,7 @@ export default function Revision() {
                 <div className="-mt-24 flex flex-col items-center text-white">
                     <h1 className="font-bold text-3xl md:text-4xl px-5 pb-2 text-center">No Cards to Revise</h1>
                     <p className="px-7 py-2 text-center max-w-[80%]">
-                        You've completed all your revisions for now. Great job! Learn more in the Practice page or come back later to continue improving your skills.
+                        You&apos;ve completed all your revisions for now. Great job! Learn more in the Practice page or come back later to continue improving your skills.
                     </p>
                     <Link href="type/practice" className="py-2 px-4 m-3 font-bold text-xl md:text-2xl text-center text-white rounded-xl bg-main-red">
                         <h2>Keep learning and practicing!</h2>

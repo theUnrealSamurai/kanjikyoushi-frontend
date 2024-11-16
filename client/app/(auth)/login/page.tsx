@@ -76,7 +76,7 @@ export default function Login() {
                                     Login
                             </button>
                             <button className="m-2 p-1 px-4 bg-white text-black rounded-2xl font-bold">Sign In with Google</button>
-                            <p className="text-center mt-2">Don't have an account? <Link href="/signup/" className="text-main-red font-bold">signup</Link></p>
+                            <p className="text-center mt-2">Don&apos;t have an account? <Link href="/signup/" className="text-main-red font-bold">signup</Link></p>
                         </form>
                     </div>
                 </div>
