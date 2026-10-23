@@ -44,11 +44,15 @@ function spansOf(tokens: Token[]): Span[] {
     });
 }
 
-interface GradedWord {
+interface CardWord {
     id: number;
-    role: "learning" | "review";
+    role: "learning" | "review" | "known";
     info: WordInfo;
 }
+
+/** Words whose furigana starts hidden: review words (graded) and words you're assumed to know. */
+const hidesReading = (span: Span) =>
+    (span.role === "review" || span.role === "known") && span.word != null && span.ruby.some(([, reading]) => reading);
 
 
 export default function Practice() {
@@ -72,13 +76,13 @@ export default function Practice() {
     const matched = sentence ? matchedLength(input, sentence.text) : 0;
     const diverged = !composing && input.length > matched;
 
-    // One dictionary card per graded word, in sentence order.
-    const graded = useMemo<GradedWord[]>(() => {
+    // One possible dictionary card per word with kanji, in sentence order.
+    const cardWords = useMemo<CardWord[]>(() => {
         if (!sentence) return [];
         const seen = new Set<number>();
-        const words: GradedWord[] = [];
+        const words: CardWord[] = [];
         for (const span of spans) {
-            if ((span.role !== "learning" && span.role !== "review") || span.word == null || seen.has(span.word)) continue;
+            if ((span.role !== "learning" && span.role !== "review" && span.role !== "known") || span.word == null || seen.has(span.word)) continue;
             seen.add(span.word);
             const info = sentence.words?.[String(span.word)] ?? { text: span.text, reading: "", meanings: [], kanji: [] };
             words.push({ id: span.word, role: span.role, info });
@@ -86,8 +90,8 @@ export default function Practice() {
         return words;
     }, [sentence, spans]);
 
-    // New words are always shown; review words appear once revealed with Tab (or all of them in help mode).
-    const cards = graded.filter((word) => word.role === "learning" || help || revealed.has(word.id));
+    // New words are always shown; other words appear once revealed with Tab (review words also in help mode).
+    const cards = cardWords.filter((word) => word.role === "learning" || revealed.has(word.id) || (help && word.role === "review"));
 
     const show = useCallback(async (response: Response) => {
         if (response.status === 409) {
@@ -191,17 +195,22 @@ export default function Practice() {
     };
 
     const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (!sentence || e.nativeEvent.isComposing || e.keyCode === 229) return;
+        if (!sentence) return;
+        // Tab is handled even mid-composition (you're often stuck halfway through typing the word), and it
+        // must never move focus out of the box: with the Japanese IME on, Chrome can report it as keyCode 229.
         if (e.key === "Tab") {
             e.preventDefault();
             if (e.shiftKey) {
                 toggleHelp();
                 return;
             }
-            // Reveal the review word you're on: the first one not fully typed yet. No such word: nothing happens.
-            const next = spans.find((s) => s.role === "review" && s.word != null && s.end > matched && !revealed.has(s.word));
+            // Reveal the word you're on: the first one with hidden furigana not fully typed yet.
+            const next = spans.find((s) => hidesReading(s) && s.end > matched && !revealed.has(s.word as number));
             if (next) setRevealed(new Set(revealed).add(next.word as number));
-        } else if (e.key === "Enter") {
+            return;
+        }
+        if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+        if (e.key === "Enter") {
             e.preventDefault();
             if (isComplete(input, sentence.text)) {
                 submit(input, missed);
@@ -215,9 +224,8 @@ export default function Practice() {
     const rubyVisible = (span: Span) => {
         switch (span.role) {
             case "review":
-                return help || revealed.has(span.word as number);
             case "known":
-                return help;
+                return help || revealed.has(span.word as number);
             default:
                 return true;  // new and unseen words, plus names and numbers, always show their reading
         }
@@ -370,7 +378,7 @@ export default function Practice() {
                                 />
 
                                 <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
-                                    <span><Kbd>Tab</Kbd> reveal the reading of the review word you&apos;re on</span>
+                                    <span><Kbd>Tab</Kbd> reveal the reading of the word you&apos;re on</span>
                                     <span><Kbd>Shift+Tab</Kbd> help: all readings, romaji, translation</span>
                                     <span><Kbd>Enter</Kbd> submit</span>
                                 </p>
