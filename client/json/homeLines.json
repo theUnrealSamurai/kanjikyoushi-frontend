@@ -1,0 +1,11 @@
+[
+    ["ようこそ", { "word": "俺様", "reading": "おれさま", "kind": "new" }, "の", { "word": "道場", "reading": "どうじょう", "kind": "review" }, "へ！"],
+    [{ "word": "貴様", "reading": "きさま", "kind": "new" }, "、", { "word": "漢字", "reading": "かんじ", "kind": "review" }, "も読めないのか？"],
+    [{ "word": "俺様", "reading": "おれさま", "kind": "new" }, "の", { "word": "辞書", "reading": "じしょ", "kind": "review" }, "に不可能はない。"],
+    ["今日も", { "word": "俺様", "reading": "おれさま", "kind": "new" }, "と", { "word": "修行", "reading": "しゅぎょう", "kind": "review" }, "だな！"],
+    [{ "word": "漢字王", "reading": "かんじおう", "kind": "new" }, "に", { "word": "俺", "reading": "おれ", "kind": "review" }, "はなる！"],
+    [{ "word": "お前", "reading": "おまえ", "kind": "new" }, "はもう", { "word": "読", "reading": "よ", "kind": "review" }, "めている。"],
+    [{ "word": "漢字", "reading": "かんじ", "kind": "review" }, "に", { "word": "心臓", "reading": "しんぞう", "kind": "new" }, "を", { "word": "捧", "reading": "ささ", "kind": "new" }, "げよ！"],
+    [{ "word": "漢字", "reading": "かんじ", "kind": "review" }, "から", { "word": "逃", "reading": "に", "kind": "new" }, "げちゃダメだ！"],
+    [{ "word": "定時", "reading": "ていじ", "kind": "new" }, "で", { "word": "帰", "reading": "かえ", "kind": "review" }, "ります。"]
+]
