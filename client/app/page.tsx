@@ -136,8 +136,8 @@ export default function Home() {
                         the kanji, so I made this to learn them.
                     </p>
                     <p>
-                        If you find it useful, leave a star on GitHub and fuckin&apos; use it. It&apos;s fuckin&apos;
-                        free and I don&apos;t serve you fuckin&apos; ads.
+                        If you find it useful, leave a star on GitHub and use it. It&apos;s fuckin&apos;
+                        free and I don&apos;t serve you ads.
                     </p>
                     <p>Want features or some shit like that? Ask me, I&apos;ll consider.</p>
                     <div className="flex flex-wrap gap-3 pt-2">
@@ -150,14 +150,14 @@ export default function Home() {
             <section className="mx-auto w-full max-w-6xl px-5 pb-20">
                 <div className="panel relative isolate overflow-hidden px-6 py-14 text-center sm:py-20">
                     <div aria-hidden className="pointer-events-none absolute -bottom-24 left-1/2 -z-10 h-64 w-[40rem] -translate-x-1/2 rounded-full bg-accent/15 blur-3xl" />
-                    <p className="font-jp text-muted" lang="ja">とにかく打て。</p>
-                    <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl">
+                    <h2 className="text-3xl font-extrabold tracking-tight sm:text-5xl">
                         Forget everything.
                         <br />
                         Just keep typing.
                     </h2>
                     <p className="mt-4 text-lg text-muted">You&apos;ll eventually know all the kanji.</p>
                     <Link href="/type/practice" className="btn-primary mt-8 px-8 py-3 text-lg">Start typing →</Link>
+                    <p className="mt-4 font-jp text-muted" lang="ja">とにかく打て。</p>
                 </div>
             </section>
 
