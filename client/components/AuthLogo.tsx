@@ -1,7 +1,10 @@
-export default function AuthLogo() {
+import Link from "next/link";
+
+/** The TypeKanji wordmark. */
+export default function AuthLogo({ className = "text-2xl" }: { className?: string }) {
     return (
-        <div className="p-4 font-bold text-2xl text-white">
-            <h1><span className="text-main-red">Type</span><span>Kanji</span></h1>
-        </div>
+        <Link href="/" className={`font-bold tracking-tight text-text ${className}`}>
+            <span className="text-accent">Type</span>Kanji
+        </Link>
     );
 }

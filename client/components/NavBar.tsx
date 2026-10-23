@@ -1,66 +1,74 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { usePathname, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import React, { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import Cookies from "js-cookie";
 import { clearSession } from "@/lib/api";
+import AuthLogo from "@/components/AuthLogo";
+
+const GUEST = "GuestUser";
 
 const NavBar: React.FC = () => {
     const pathname = usePathname();
     const router = useRouter();
-    const username_cookie = Cookies.get("username");
-    const [username, setUsername] = useState<string>('');
+    const [username, setUsername] = useState<string>("");
 
+    // Read the cookie after mount so the server and first client render agree.
     useEffect(() => {
-        setUsername(username_cookie || 'GuestUser');
-    }, [username_cookie]);
+        setUsername(Cookies.get("username") || GUEST);
+    }, [pathname]);
 
     const logout = () => {
         clearSession();
-        setUsername('GuestUser');
+        setUsername(GUEST);
         router.push("/");
     };
 
-    const typing = pathname.startsWith('/type');
+    const typing = pathname.startsWith("/type");
+    const signedIn = username !== "" && username !== GUEST;
 
     return (
-        <nav className="w-screen flex justify-center">
-            <div className="w-[98%] flex justify-between mt-4 bg-main-gray p-4 rounded-2xl drop-shadow-lg shadow-lg">
-                <div className="pl-3 w-4/5 h-full">
-                    <Link href="/" className="font-bold">
-                        <h1 className="text-white font-bold text-2xl">
-                            <span className="text-main-red">Type</span><span>Kanji</span>
-                        </h1>
+        <nav className="flex w-full justify-center px-3 pt-3 sm:px-4 sm:pt-4">
+            <div className="flex w-full max-w-6xl items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3 shadow-lg shadow-black/20">
+                <AuthLogo />
+                <div className="flex items-center gap-1 text-sm font-semibold sm:gap-3">
+                    <Link
+                        href="/type/practice"
+                        className={`rounded-lg px-3 py-1.5 transition-colors hover:text-accent ${typing ? "bg-accent/15 text-accent" : "text-muted"}`}
+                    >
+                        Type
                     </Link>
-                </div>
-                <div className="flex w-1/5 justify-end text-white font-bold text-xl">
-                    <h4 className="cursor-pointer hover:text-main-red pr-2 mx-4">
-                        <Link href="/type/practice">
-                            <span className={typing ? 'text-main-red underline decoration-main-red decoration-2 underline-offset-8' : ''}>T</span>
-                            <span className={typing ? 'underline decoration-main-red decoration-2 underline-offset-8' : ''}>ype</span>
-                        </Link>
-                    </h4>
-                    <div className="relative group">
-                        <h4 className="cursor-pointer hover:text-main-red pr-1 mx-3">
-                            {username}
-                        </h4>
-                        <div className="absolute hidden group-hover:block drop-shadow-xl bg-main-gray p-5 rounded-md right-0">
-                            {username !== 'GuestUser' ? (
-                                <h4 className="cursor-pointer hover:text-main-red" onClick={logout}>
-                                    Logout
-                                </h4>
-                            ) : (
-                                <h4 className="cursor-pointer hover:text-main-red">
-                                    <Link href="/login">Login</Link>
-                                </h4>
-                            )}
+                    <div className="group relative">
+                        <button
+                            type="button"
+                            className="max-w-[10rem] truncate rounded-lg px-3 py-1.5 text-text transition-colors hover:text-accent"
+                            aria-haspopup="menu"
+                        >
+                            {username || GUEST}
+                        </button>
+                        <div className="invisible absolute right-0 top-full z-20 pt-1 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                            <div className="min-w-[8rem] rounded-xl border border-border bg-surface-raised p-1 shadow-xl shadow-black/40">
+                                {signedIn ? (
+                                    <button
+                                        type="button"
+                                        onClick={logout}
+                                        className="w-full rounded-lg px-3 py-2 text-left hover:bg-accent/15 hover:text-accent"
+                                    >
+                                        Logout
+                                    </button>
+                                ) : (
+                                    <Link href="/login" className="block rounded-lg px-3 py-2 hover:bg-accent/15 hover:text-accent">
+                                        Login
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </nav>
     );
-}
+};
 
 export default NavBar;

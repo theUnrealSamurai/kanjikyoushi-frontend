@@ -9,9 +9,9 @@ interface Session {
 }
 
 export function saveSession(session: Session) {
-    Cookies.set("accessToken", session.access, { sameSite: "strict" });
-    Cookies.set("refreshToken", session.refresh, { sameSite: "strict" });
-    Cookies.set("username", session.user.username, { sameSite: "strict" });
+    Cookies.set("accessToken", session.access, { sameSite: "lax" });
+    Cookies.set("refreshToken", session.refresh, { sameSite: "lax" });
+    Cookies.set("username", session.user.username, { sameSite: "lax" });
 }
 
 export function clearSession() {
