@@ -4,8 +4,8 @@ import Link from "next/link";
 import { SyntheticEvent, useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import toast from "react-hot-toast";
-import Cookies from "js-cookie";
 import AuthLogo from "@/components/AuthLogo";
+import { errorMessage, post, saveSession } from "@/lib/api";
 
 
 export default function Signup() {
@@ -36,28 +36,14 @@ export default function Signup() {
         const toastId = toast.loading("Signing up...");
 
         try {
-            const response = await fetch(process.env.NEXT_PUBLIC_HOST + "/home/signup", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    "username": username,
-                    "password": password,
-                    "email": email
-                })
-            });
-
+            const response = await post("/home/signup", { username, password, email }, { auth: false });
+            const data = await response.json();
             if (response.ok) {
-                const data = await response.json();
                 toast.success("Signup successful", { id: toastId });
-                Cookies.set("accessToken", data.access);
-                Cookies.set("refreshToken", data.refresh);
-                Cookies.set("username", data.user.username);
+                saveSession(data);
                 router.push("/type/onboard");
             } else {
-                const errorData = await response.json();
-                toast.error(errorData.message || "Signup failed", { id: toastId });
+                toast.error(errorMessage(data, "Signup failed"), { id: toastId });
             }
         } catch (error) {
             console.error("Error:", error);
@@ -115,8 +101,7 @@ export default function Signup() {
                                 Sign Up
                             </button>
                         </form>
-                        <button className="m-2 p-1 px-4 bg-white text-black rounded-2xl font-bold">Sign Up with Google</button>
-                        <p className="text-center mt-2">
+                        <p className="text-center my-2">
                             Already have an account?
                             <Link href="/login/" className="text-main-red font-bold ml-1">Login</Link>
                         </p>

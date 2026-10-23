@@ -4,7 +4,7 @@ export default function TypeLayout({ children }: Readonly<{ children: React.Reac
     return (
         <div className="h-screen overflow-hidden flex flex-col">
             <NavBar />
-            <div className="flex-grow overflow-hidden">
+            <div className="flex-grow overflow-y-auto">
                 {children}
             </div>
         </div>

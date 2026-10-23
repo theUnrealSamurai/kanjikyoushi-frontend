@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
+import toast from "react-hot-toast";
 import kanjiData from "@/json/kanjiList.json";
-import Cookies from "js-cookie";
+import { post } from "@/lib/api";
 
 
 type KanjiData = {
@@ -52,25 +53,11 @@ export default function Onboard() {
     };
 
     const handleSubmit = async () => {
-        const authkey = Cookies.get("accessToken");
-        const kanjiString = Array.from(selectedKanji).join('');
-        const response = await fetch(
-            process.env.NEXT_PUBLIC_HOST + "/type/onboard",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + authkey
-                },
-                body: JSON.stringify({
-                    "kanji_list": kanjiString,
-                }),
-            }
-        );
+        const response = await post("/type/onboard", { kanji_list: Array.from(selectedKanji).join('') });
         if (response.ok) {
             window.location.href = '/type/practice';
         } else {
-            alert("Something didn't go right.");
+            toast.error("Something didn't go right.");
         }
     };
 
@@ -80,6 +67,7 @@ export default function Onboard() {
                 <div className='flex justify-center'>
                     <h1 className='text-2xl font-bold text-white mt-10'>Hey! before we begin let&apos;s quickly pick everything that you already know</h1>
                 </div>
+                <p className='text-center text-gray-300 mt-2'>Words written only with these kanji are skipped. Saving this starts your progress from scratch.</p>
                 <div className='border-2 my-5 mx-auto mb-24 w-[70%] flex flex-col items-center bg-[#453F3F] rounded-3xl p-12'>
                     {levels.map((level, index) => (
                         <div key={`level-${index}`} className='w-full mb-6'>

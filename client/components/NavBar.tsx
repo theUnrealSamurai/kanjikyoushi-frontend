@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Cookies from "js-cookie";
+import { clearSession } from "@/lib/api";
 
 const NavBar: React.FC = () => {
     const pathname = usePathname();
@@ -16,12 +17,12 @@ const NavBar: React.FC = () => {
     }, [username_cookie]);
 
     const logout = () => {
-        Cookies.remove("username");
-        Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
+        clearSession();
         setUsername('GuestUser');
         router.push("/");
     };
+
+    const typing = pathname.startsWith('/type');
 
     return (
         <nav className="w-screen flex justify-center">
@@ -34,24 +35,10 @@ const NavBar: React.FC = () => {
                     </Link>
                 </div>
                 <div className="flex w-1/5 justify-end text-white font-bold text-xl">
-                    <div className="relative group">
-                        <h4 className="cursor-pointer hover:text-main-red pr-2 mx-4">
-                            <span className={pathname === '/type/practice' || pathname === '/type/revision' ? 'text-main-red underline decoration-main-red decoration-2 underline-offset-8' : ''}> T</span>
-                            <span className={pathname === '/type/revision' || pathname === '/type/practice' ? 'underline decoration-main-red decoration-2 underline-offset-8' : ''}>ype </span>
-                        </h4>
-                        <div className="absolute hidden group-hover:block drop-shadow-xl bg-main-gray p-5 rounded-md">
-                            <h4 className="cursor-pointer hover:text-main-red">
-                                <Link href="/type/practice">Practice</Link>
-                            </h4>
-                            <h4 className="cursor-pointer mt-5 hover:text-main-red">
-                                <Link href="/type/revision">Revision</Link>
-                            </h4>
-                        </div>
-                    </div>
-                    <h4 className="cursor-pointer hover:text-main-red pr-1 mx-3">
-                        <Link href="/about">
-                            <span className={pathname === '/about' ? 'text-main-red underline decoration-main-red decoration-2 underline-offset-8' : ''}> A</span>
-                            <span className={pathname === '/about' ? 'underline decoration-main-red decoration-2 underline-offset-8' : ''}>bout </span>
+                    <h4 className="cursor-pointer hover:text-main-red pr-2 mx-4">
+                        <Link href="/type/practice">
+                            <span className={typing ? 'text-main-red underline decoration-main-red decoration-2 underline-offset-8' : ''}>T</span>
+                            <span className={typing ? 'underline decoration-main-red decoration-2 underline-offset-8' : ''}>ype</span>
                         </Link>
                     </h4>
                     <div className="relative group">
