@@ -2,7 +2,7 @@ import type { WordInfo } from "@/lib/types";
 
 interface Props {
     word: WordInfo;
-    role: "learning" | "review" | "known";
+    role: "learning" | "review" | "known" | "kana";
 }
 
 const MAX_MEANINGS = 6;
@@ -11,9 +11,10 @@ const ROLE_STYLE = {
     learning: { edge: "border-l-new-word", badge: "bg-new-word/15 text-new-word", label: "new" },
     review: { edge: "border-l-review-word", badge: "bg-review-word/15 text-review-word", label: "review" },
     known: { edge: "border-l-accent", badge: "bg-accent/15 text-accent", label: "looked up" },
+    kana: { edge: "border-l-muted", badge: "bg-muted/15 text-muted", label: "meaning" },
 } as const;
 
-/** Dictionary card for one word (new, review, or a known word looked up with Tab): reading, numbered meanings and a compact kanji breakdown. */
+/** Dictionary card for one word (new, review, a known word looked up with Tab, or a kana word's meaning): reading, numbered meanings and a compact kanji breakdown. */
 export default function WordCard({ word, role }: Props) {
     const style = ROLE_STYLE[role];
     const meanings = word.meanings.slice(0, MAX_MEANINGS);

@@ -45,8 +45,9 @@ function spansOf(tokens: Token[]): Span[] {
 }
 
 interface CardWord {
+    key: string;  // "w<word id>" for kanji words, "k<kana word id>" for kana words
     id: number;
-    role: "learning" | "review" | "known";
+    role: "learning" | "review" | "known" | "kana";
     info: WordInfo;
 }
 
@@ -66,7 +67,9 @@ export default function Practice() {
     const [reloadKey, setReloadKey] = useState(0);
     const [input, setInput] = useState("");
     const [composing, setComposing] = useState(false);
-    const [revealed, setRevealed] = useState<Set<number>>(new Set());
+    const [revealed, setRevealed] = useState<Set<number>>(new Set());   // kanji words shown with Tab: graded
+    const [lookedUp, setLookedUp] = useState<Set<number>>(new Set());   // kana words shown with Tab: never graded
+    const [newestCard, setNewestCard] = useState<string | null>(null);
     const [missed, setMissed] = useState<Set<number>>(new Set());
     const [help, setHelp] = useState(false);
     const [notYet, setNotYet] = useState(false);
@@ -76,22 +79,38 @@ export default function Practice() {
     const matched = sentence ? matchedLength(input, sentence.text) : 0;
     const diverged = !composing && input.length > matched;
 
-    // One possible dictionary card per word with kanji, in sentence order.
+    // Every possible dictionary card, in sentence order: kanji words and kana words with a meaning.
     const cardWords = useMemo<CardWord[]>(() => {
         if (!sentence) return [];
-        const seen = new Set<number>();
+        const seen = new Set<string>();
         const words: CardWord[] = [];
         for (const span of spans) {
-            if ((span.role !== "learning" && span.role !== "review" && span.role !== "known") || span.word == null || seen.has(span.word)) continue;
-            seen.add(span.word);
-            const info = sentence.words?.[String(span.word)] ?? { text: span.text, reading: "", meanings: [], kanji: [] };
-            words.push({ id: span.word, role: span.role, info });
+            if (span.word != null && (span.role === "learning" || span.role === "review" || span.role === "known")) {
+                const key = `w${span.word}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const info = sentence.words?.[String(span.word)] ?? { text: span.text, reading: "", meanings: [], kanji: [] };
+                words.push({ key, id: span.word, role: span.role, info });
+            } else if (span.lookup != null && sentence.kana_words?.[String(span.lookup)]) {
+                const key = `k${span.lookup}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                words.push({ key, id: span.lookup, role: "kana", info: sentence.kana_words[String(span.lookup)] });
+            }
         }
         return words;
     }, [sentence, spans]);
 
-    // New words are always shown; other words appear once revealed with Tab (review words also in help mode).
-    const cards = cardWords.filter((word) => word.role === "learning" || revealed.has(word.id) || (help && word.role === "review"));
+    // New words are always shown; others appear once Tab reveals them (review words also in help mode).
+    const cards = cardWords.filter((word) =>
+        word.role === "learning"
+        || (word.role === "kana" ? lookedUp.has(word.id) : revealed.has(word.id))
+        || (help && word.role === "review"));
+
+    // A card that Tab just opened might be below the fold on a short screen: bring it into view.
+    useEffect(() => {
+        if (newestCard) document.querySelector(`[data-card="${newestCard}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, [newestCard]);
 
     const show = useCallback(async (response: Response) => {
         if (response.status === 409) {
@@ -118,6 +137,8 @@ export default function Practice() {
         setDone(finished ? (payload as Done) : null);
         setInput("");
         setRevealed(new Set());
+        setLookedUp(new Set());
+        setNewestCard(null);
         setMissed(new Set());
         setHelp(false);
     }, [router]);
@@ -205,8 +226,19 @@ export default function Practice() {
                 return;
             }
             // Reveal the word you're on: the first one with hidden furigana not fully typed yet.
-            const next = spans.find((s) => hidesReading(s) && s.end > matched && !revealed.has(s.word as number));
-            if (next) setRevealed(new Set(revealed).add(next.word as number));
+            // The word you're on: the first one not fully typed yet that has something to show. A kanji word
+            // shows its reading (and counts in FSRS); a kana-only word just shows its meaning (never graded).
+            const next = spans.find((s) => s.end > matched && (
+                (hidesReading(s) && !revealed.has(s.word as number))
+                || (s.lookup != null && !lookedUp.has(s.lookup) && Boolean(sentence.kana_words?.[String(s.lookup)]))
+            ));
+            if (next && hidesReading(next)) {
+                setRevealed(new Set(revealed).add(next.word as number));
+                setNewestCard(`w${next.word}`);
+            } else if (next?.lookup != null) {
+                setLookedUp(new Set(lookedUp).add(next.lookup));
+                setNewestCard(`k${next.lookup}`);
+            }
             return;
         }
         if (e.nativeEvent.isComposing || e.keyCode === 229) return;
@@ -378,30 +410,30 @@ export default function Practice() {
                                 />
 
                                 <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
-                                    <span><Kbd>Tab</Kbd> reveal the reading of the word you&apos;re on</span>
+                                    <span><Kbd>Tab</Kbd> reading or meaning of the word you&apos;re on</span>
                                     <span><Kbd>Shift+Tab</Kbd> help: all readings, romaji, translation</span>
                                     <span><Kbd>Enter</Kbd> submit</span>
                                 </p>
                             </div>
                         </div>
                     )}
+
+                    {!loadError && sentence && cards.length > 0 && (
+                        <section
+                            aria-label="Dictionary"
+                            className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(min(100%,16rem),1fr))] items-start gap-3"
+                            // Keep focus in the typing input: pressing on a card must not blur it.
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            {cards.map((word) => (
+                                <div key={`${sentence.sentence_id}-${word.key}`} data-card={word.key} className="scroll-mb-4">
+                                    <WordCard word={word.info} role={word.role} />
+                                </div>
+                            ))}
+                        </section>
+                    )}
                 </div>
             </div>
-
-            {!loadError && sentence && cards.length > 0 && (
-                <section
-                    aria-label="Dictionary"
-                    className="shrink-0 border-t border-border bg-background/90 backdrop-blur"
-                    // Keep focus in the typing input: pressing on a card must not blur it.
-                    onMouseDown={(e) => e.preventDefault()}
-                >
-                    <div className="mx-auto grid max-h-[38vh] max-w-4xl grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] items-start gap-3 overflow-y-auto p-3">
-                        {cards.map((word) => (
-                            <WordCard key={`${sentence.sentence_id}-${word.id}`} word={word.info} role={word.role} />
-                        ))}
-                    </div>
-                </section>
-            )}
         </div>
     );
 }
