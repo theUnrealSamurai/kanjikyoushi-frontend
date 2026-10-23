@@ -78,7 +78,6 @@ export default function Practice() {
     const [revealed, setRevealed] = useState<Set<number>>(new Set());  // hidden readings shown with Tab: graded
     const [opened, setOpened] = useState<Set<string>>(new Set());      // other cards opened with Tab: never graded
     const [focusCard, setFocusCard] = useState<{ key: string; at: number } | null>(null);  // last card Tab went to
-    const [missed, setMissed] = useState<Set<number>>(new Set());
     const [skipped, setSkipped] = useState<Set<number>>(new Set());  // review words you asked how to type: not graded
     const [inputHint, setInputHint] = useState<{ text: string; keys: string; end: number } | null>(null);
     const [help, setHelp] = useState(false);
@@ -150,7 +149,6 @@ export default function Practice() {
         setRevealed(new Set());
         setOpened(new Set());
         setFocusCard(null);
-        setMissed(new Set());
         setSkipped(new Set());
         setInputHint(null);
         setHelp(false);
@@ -182,7 +180,7 @@ export default function Practice() {
         setReloadKey((key) => key + 1);
     };
 
-    const submit = async (typed: string, missedWords: Set<number>) => {
+    const submit = async (typed: string) => {
         if (!sentence || submitting.current) return;
         submitting.current = true;
         try {
@@ -190,7 +188,6 @@ export default function Practice() {
                 sentence_id: sentence.sentence_id,
                 typed,
                 revealed: Array.from(revealed),
-                missed: Array.from(missedWords),
                 skipped: Array.from(skipped),
             });
             // A 400 means the sentence went stale (e.g. graded in another tab); just move on.
@@ -201,20 +198,12 @@ export default function Practice() {
         }
     };
 
-    /** Runs on committed text, never mid-IME-composition. Typing that goes wrong inside a review word
-     *  marks that word as missed; typing the whole sentence submits it. */
+    /** Runs on committed text, never mid-IME-composition: typing the whole sentence submits it.
+     *  Typos only turn the box red so you can fix them; they never affect grading. */
     const evaluate = (value: string) => {
         if (!sentence) return;
         const at = matchedLength(value, sentence.text);
-        let missedWords = missed;
-        if (value.length > at) {
-            const span = spans.find((s) => s.role === "review" && s.start <= at && at < s.end);
-            if (span?.word != null && !missed.has(span.word)) {
-                missedWords = new Set(missed).add(span.word);
-                setMissed(missedWords);
-            }
-        }
-        if (at === sentence.text.length && value.length === at) submit(value, missedWords);
+        if (at === sentence.text.length && value.length === at) submit(value);
     };
 
     const toggleHelp = () => {
@@ -271,7 +260,7 @@ export default function Practice() {
         if (e.key === "Enter") {
             e.preventDefault();
             if (isComplete(input, sentence.text)) {
-                submit(input, missed);
+                submit(input);
             } else {
                 setNotYet(true);
                 setTimeout(() => setNotYet(false), 400);
