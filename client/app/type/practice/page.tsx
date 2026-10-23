@@ -80,7 +80,7 @@ export default function Practice() {
     const [focusCard, setFocusCard] = useState<{ key: string; at: number } | null>(null);  // last card Tab went to
     const [missed, setMissed] = useState<Set<number>>(new Set());
     const [skipped, setSkipped] = useState<Set<number>>(new Set());  // review words you asked how to type: not graded
-    const [inputHint, setInputHint] = useState<{ text: string; kana: string; keys: string; end: number } | null>(null);
+    const [inputHint, setInputHint] = useState<{ text: string; keys: string; end: number } | null>(null);
     const [help, setHelp] = useState(false);
     const [notYet, setNotYet] = useState(false);
     const translator = useTranslator();
@@ -236,7 +236,7 @@ export default function Practice() {
         const next = spans.find((s) => s.end > matched && (s.word != null || s.lookup != null || s.ruby.some(([, rt]) => rt)));
         if (!next) return;
         const kana = next.ruby.map(([base, reading]) => reading || base).join("");
-        setInputHint({ text: next.text, kana, keys: imeKeys(kana), end: next.end });
+        setInputHint({ text: next.text, keys: imeKeys(kana), end: next.end });
         if (next.role === "review" && next.word != null) setSkipped(new Set(skipped).add(next.word));
     };
 
@@ -438,8 +438,6 @@ export default function Practice() {
                                 {inputHint && matched < inputHint.end && (
                                     <div data-testid="input-hint" className="flex animate-fade-in flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2">
                                         <span lang="ja" className="font-jp text-lg">{inputHint.text}</span>
-                                        <span className="text-muted">→</span>
-                                        <span lang="ja" className="font-jp text-muted">{inputHint.kana}</span>
                                         <span className="text-muted">→ type</span>
                                         <kbd className="font-mono text-lg tracking-wider text-accent">{inputHint.keys}</kbd>
                                         <span className="ml-auto text-xs text-muted">not graded</span>
