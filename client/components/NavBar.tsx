@@ -16,6 +16,7 @@ const NavBar: React.FC = () => {
 
     // Read the cookie after mount so the server and first client render agree.
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- the cookie only exists on the client
         setUsername(Cookies.get("username") || GUEST);
     }, [pathname]);
 

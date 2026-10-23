@@ -51,6 +51,7 @@ const STEPS = [
 ];
 
 export default function Home() {
+    // eslint-disable-next-line react-hooks/purity -- rendered per request; a different line each visit is the point
     const line = LINES[Math.floor(Math.random() * LINES.length)];
     return (
         <div className="flex min-h-screen flex-col">
