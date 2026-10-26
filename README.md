@@ -18,13 +18,13 @@ Type the sentence with your Japanese input method on. Everything works from the 
 
 | | |
 |---|---|
-| **amber** word | new word: furigana shown while you get to know it (3 sightings) |
+| **amber** word | new word. The first time it's a test, furigana hidden: type it without help and it skips the warm-up. Otherwise furigana shown while you get to know it (3 sightings) |
 | **aqua** word | review word: furigana hidden; how you type it is the review |
-| `Tab` | reveal the reading of the review word you're on and open its dictionary card (counts as Hard) |
+| `Tab` | reveal the reading of the review or new word you're on and open its dictionary card (a review counts as Hard, a new word gets the warm-up) |
 | `Shift+Tab` | help: every reading, every dictionary card, romaji and an English translation (untyped review words count as Hard) |
 | `Enter` | submit; a fully typed sentence also submits by itself |
 
-New words always show their dictionary card (meanings plus a kanji breakdown) at the bottom of the page.
+New words show their dictionary card (meanings plus a kanji breakdown) at the bottom of the page, except on their test, where Tab opens it.
 The English translation comes from Chrome's built-in Translator API (Chrome 138+, on-device; the first use downloads the ja to en model).
 Signed-out visitors are redirected from `/type/*` to `/login` by `middleware.ts`.
 

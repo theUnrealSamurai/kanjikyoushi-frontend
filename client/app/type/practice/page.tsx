@@ -49,7 +49,7 @@ function spansOf(tokens: Token[]): Span[] {
 interface CardWord {
     key: string;  // "w<word id>" for kanji words, "k<kana word id>" for kana words, "x<token index>" for names/numbers/counters
     id: number;
-    role: "learning" | "review" | "known" | "unseen" | "kana" | "other";
+    role: "learning" | "test" | "review" | "known" | "unseen" | "kana" | "other";
     info: WordInfo;
 }
 
@@ -61,9 +61,9 @@ const cardKey = (span: Span, sentence: Sentence) => {
     return null;
 };
 
-/** Words whose furigana starts hidden: review words (graded) and words you're assumed to know. */
+/** Words whose furigana starts hidden: test words (a new word's first sighting), review words (graded) and words you're assumed to know. */
 const hidesReading = (span: Span) =>
-    (span.role === "review" || span.role === "known") && span.word != null && span.ruby.some(([, reading]) => reading);
+    (span.role === "test" || span.role === "review" || span.role === "known") && span.word != null && span.ruby.some(([, reading]) => reading);
 
 
 export default function Practice() {
@@ -80,7 +80,7 @@ export default function Practice() {
     const [revealed, setRevealed] = useState<Set<number>>(new Set());  // hidden readings shown with Tab: graded
     const [opened, setOpened] = useState<Set<string>>(new Set());      // other cards opened with Tab: never graded
     const [focusCard, setFocusCard] = useState<{ key: string; at: number } | null>(null);  // last card Tab went to
-    const [skipped, setSkipped] = useState<Set<number>>(new Set());  // review words you asked how to type: not graded
+    const [skipped, setSkipped] = useState<Set<number>>(new Set());  // test and review words you asked how to type: not graded
     const [inputHint, setInputHint] = useState<{ text: string; keys: string; end: number } | null>(null);
     const [help, setHelp] = useState(false);
     const [notYet, setNotYet] = useState(false);
@@ -119,12 +119,13 @@ export default function Practice() {
         return words;
     }, [sentence, spans]);
 
-    // New words are always shown; others appear once Tab reaches them (review words also in help mode).
+    // New words are always shown; others appear once Tab reaches them (test and review words also in help mode).
+    // A test word's card shows the reading, so it stays hidden until then.
     const cards = cardWords.filter((word) =>
         word.role === "learning"
-        || ((word.role === "review" || word.role === "known") && revealed.has(word.id))
+        || ((word.role === "test" || word.role === "review" || word.role === "known") && revealed.has(word.id))
         || opened.has(word.key)
-        || (help && word.role === "review"));
+        || (help && (word.role === "test" || word.role === "review")));
 
     // The card Tab just went to might be below the fold on a short screen: bring it into view.
     useEffect(() => {
@@ -250,8 +251,8 @@ export default function Practice() {
     const toggleHelp = () => {
         if (!sentence) return;
         if (!help) {
-            // Help shows every reading, so review words not typed yet count as revealed.
-            const untyped = spans.filter((s) => s.role === "review" && s.word != null && s.end > matched);
+            // Help shows every reading, so test and review words not typed yet count as revealed.
+            const untyped = spans.filter((s) => (s.role === "test" || s.role === "review") && s.word != null && s.end > matched);
             setRevealed(new Set([...Array.from(revealed), ...untyped.map((s) => s.word as number)]));
             // Straight from the key handler: the translator may need user activation to download its model.
             if (!sentence.translation) translator.request(sentence.sentence_id, sentence.text);
@@ -260,14 +261,14 @@ export default function Practice() {
     };
 
     /** ⌥Tab: the keys to press for the next word you haven't typed (you know the reading, not the keystrokes).
-     *  Never graded: a due review word is skipped for this sentence and stays due. */
+     *  Never graded: a due review word is skipped for this sentence and stays due, and a test word counts as needing help. */
     const showInputHint = () => {
         if (!sentence) return;
         const next = spans.find((s) => s.end > matched && (s.word != null || s.lookup != null || s.ruby.some(([, rt]) => rt)));
         if (!next) return;
         const kana = next.ruby.map(([base, reading]) => reading || base).join("");
         setInputHint({ text: next.text, keys: imeKeys(kana), end: next.end });
-        if (next.role === "review" && next.word != null) setSkipped(new Set(skipped).add(next.word));
+        if ((next.role === "test" || next.role === "review") && next.word != null) setSkipped(new Set(skipped).add(next.word));
     };
 
     const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -311,11 +312,12 @@ export default function Practice() {
 
     const rubyVisible = (span: Span) => {
         switch (span.role) {
+            case "test":
             case "review":
             case "known":
                 return help || revealed.has(span.word as number);
             default:
-                return true;  // new and unseen words, plus names and numbers, always show their reading
+                return true;  // learning and unseen words, plus names and numbers, always show their reading
         }
     };
 

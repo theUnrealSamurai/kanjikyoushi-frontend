@@ -10,9 +10,9 @@ interface Props {
 }
 
 /** A line that isn't being typed: role colours and furigana per role, with no Tab or help state.
- *  Review and known words keep their reading hidden (the space stays, so the line doesn't shift later). */
+ *  Test, review and known words keep their reading hidden (the space stays, so the line doesn't shift later). */
 function staticToken(token: Token, key: number) {
-    const hidden = token.role === "review" || token.role === "known";
+    const hidden = token.role === "test" || token.role === "review" || token.role === "known";
     return (
         <span key={key} className={ROLE_COLOR[token.role ?? ""] ?? "text-text"}>
             {token.ruby.map(([base, reading], i) => {

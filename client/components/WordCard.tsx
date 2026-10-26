@@ -2,13 +2,14 @@ import type { WordInfo } from "@/lib/types";
 
 interface Props {
     word: WordInfo;
-    role: "learning" | "review" | "known" | "unseen" | "kana" | "other";
+    role: "learning" | "test" | "review" | "known" | "unseen" | "kana" | "other";
 }
 
 const MAX_MEANINGS = 6;
 
 const ROLE_STYLE = {
     learning: { edge: "border-l-new-word", badge: "bg-new-word/15 text-new-word", label: "new" },
+    test: { edge: "border-l-new-word", badge: "bg-new-word/15 text-new-word", label: "new" },
     review: { edge: "border-l-review-word", badge: "bg-review-word/15 text-review-word", label: "review" },
     known: { edge: "border-l-accent", badge: "bg-accent/15 text-accent", label: "looked up" },
     unseen: { edge: "border-l-muted", badge: "bg-muted/15 text-muted", label: "not taught yet" },

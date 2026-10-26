@@ -1,6 +1,6 @@
 /** Shapes of the sentence payloads returned by POST /type/next and /type/submit. */
 
-export type Role = "review" | "learning" | "unseen" | "known" | null;
+export type Role = "review" | "learning" | "test" | "unseen" | "known" | null;
 
 export interface Token {
     text: string;
@@ -38,7 +38,7 @@ export interface Stats {
     n5_total: number;              // 109
 }
 
-/** One line (sentence) of a passage, with roles as they apply in this passage: review words keep their furigana
+/** One line (sentence) of a passage, with roles as they apply in this passage: test, review and known words keep their furigana
  *  hidden and new words are highlighted, also on lines still to come. */
 export interface PassageLine {
     sentence_id: number;
