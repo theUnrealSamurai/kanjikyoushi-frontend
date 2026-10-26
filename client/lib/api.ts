@@ -55,3 +55,12 @@ export function errorMessage(data: unknown, fallback: string): string {
     }
     return fallback;
 }
+
+/** Message for a 429 throttle response, reading the wait (in seconds) from DRF's "Expected available in N seconds." detail. */
+export function throttledMessage(data: unknown): string {
+    const detail = data && typeof data === "object" ? (data as Record<string, unknown>).detail : null;
+    const seconds = typeof detail === "string" ? Number(detail.match(/\d+/)?.[0]) : NaN;
+    if (!Number.isFinite(seconds)) return "Too many attempts. Try again later.";
+    const minutes = Math.max(1, Math.ceil(seconds / 60));
+    return `Too many attempts. Try again in ${minutes} ${minutes === 1 ? "minute" : "minutes"}.`;
+}

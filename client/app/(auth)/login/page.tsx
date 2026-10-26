@@ -6,7 +6,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import AuthShell from "@/components/AuthShell";
 import TextField from "@/components/TextField";
-import { errorMessage, post, saveSession } from "@/lib/api";
+import { errorMessage, post, saveSession, throttledMessage } from "@/lib/api";
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -28,7 +28,11 @@ export default function Login() {
             const response = await post("/home/login", { username: username.trim(), password }, { auth: false });
             const data = await response.json().catch(() => null);
             if (!response.ok) {
-                setError(response.status === 401 ? "Wrong username or password." : errorMessage(data, "Login failed. Please try again."));
+                setError(
+                    response.status === 401 ? "Wrong username or password."
+                    : response.status === 429 ? throttledMessage(data)
+                    : errorMessage(data, "Login failed. Please try again."),
+                );
                 setSubmitting(false);
                 return;
             }

@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import AuthShell from "@/components/AuthShell";
 import TextField from "@/components/TextField";
-import { errorMessage, post, saveSession } from "@/lib/api";
+import { errorMessage, post, saveSession, throttledMessage } from "@/lib/api";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Signup() {
+    const [inviteCode, setInviteCode] = useState("");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -22,6 +23,7 @@ export default function Signup() {
     const router = useRouter();
 
     const errors = {
+        invite: inviteCode.trim().length === 0 ? "Enter your invite code." : null,
         username: username.trim().length === 0 ? "Pick a username." : null,
         email: !EMAIL.test(email.trim()) ? "Enter a valid email address." : null,
         password: password.length < 8 ? "Password must be at least 8 characters long." : null,
@@ -36,14 +38,14 @@ export default function Signup() {
         e.preventDefault();
         if (submitting) return;
         if (!isFormValid) {
-            setTouched({ username: true, email: true, password: true, confirm: true });
+            setTouched({ invite: true, username: true, email: true, password: true, confirm: true });
             setFormError("Please fix the highlighted fields.");
             return;
         }
         setFormError(null);
         setSubmitting(true);
         try {
-            const response = await post("/home/signup", { username: username.trim(), password, email: email.trim() }, { auth: false });
+            const response = await post("/home/signup", { username: username.trim(), password, email: email.trim(), invite_code: inviteCode.trim() }, { auth: false });
             const data = await response.json().catch(() => null);
             if (response.ok) {
                 saveSession(data);
@@ -51,7 +53,7 @@ export default function Signup() {
                 router.push("/type/onboard");
                 return;
             }
-            setFormError(errorMessage(data, "Signup failed. Please try again."));
+            setFormError(response.status === 429 ? throttledMessage(data) : errorMessage(data, "Signup failed. Please try again."));
         } catch {
             setFormError("Couldn't reach the server. Please try again.");
         }
@@ -61,6 +63,17 @@ export default function Signup() {
     return (
         <AuthShell title="Create your account" subtitle="Start reading kanji by typing">
             <form onSubmit={handleSignup} noValidate>
+                <p className="mb-4 text-sm text-muted">Signups need an invite code from the site owner.</p>
+                <TextField
+                    label="Invite code"
+                    type="text"
+                    autoComplete="off"
+                    placeholder="enter your invite code"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    onBlur={() => touch("invite")}
+                    error={shown("invite")}
+                />
                 <TextField
                     label="Username"
                     type="text"
