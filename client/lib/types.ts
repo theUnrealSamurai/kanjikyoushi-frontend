@@ -32,6 +32,31 @@ export interface Stats {
     learning: number;
     learn_new: boolean;  // true: new words are taught, with reviews mixed in; false: reviews only
     learned_today: number;  // new words that finished their warm-up today, in the browser's timezone
+    paragraphs: boolean;           // paragraph mode is on (only ever true once unlocked)
+    paragraphs_unlocked: boolean;  // every N5 kanji is covered
+    n5_covered: number;            // N5 kanji you know or have learned in a word, toward the unlock
+    n5_total: number;              // 109
+}
+
+/** One line (sentence) of a passage, with roles as they apply in this passage: review words keep their furigana
+ *  hidden and new words are highlighted, also on lines still to come. */
+export interface PassageLine {
+    sentence_id: number;
+    text: string;
+    tokens: Token[];
+}
+
+/** Paragraph mode: the passage around the sentence being typed. The payload's own sentence_id, text, tokens,
+ *  words etc. always describe lines[index], so typing, Tab and grading work exactly as for a single sentence. */
+export interface PassageView {
+    id: number;
+    title: string;
+    author: string;
+    source: string;   // "Aozora Bunko"
+    url: string;      // the work's page, for the credit line ("" if unknown)
+    licence: string;  // e.g. "Public domain"
+    index: number;    // 0-based: the line being typed; lines before it are done
+    lines: PassageLine[];
 }
 
 export interface Sentence {
@@ -44,6 +69,7 @@ export interface Sentence {
     kana_words: Record<string, WordInfo>;  // keyed by token lookup id: meanings for kana-only words
     extra_words: Record<string, WordInfo>;  // keyed by token extra id: kanji breakdown for names, numbers and counters
     stats: Stats;
+    passage: PassageView | null;  // set in paragraph mode; null for a single sentence
 }
 
 export interface Done {

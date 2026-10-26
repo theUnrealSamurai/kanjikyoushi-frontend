@@ -6,10 +6,12 @@ import toast from "react-hot-toast";
 import DueInfo from "@/components/DueInfo";
 import DuePanel from "@/components/DuePanel";
 import ModeSwitch from "@/components/ModeSwitch";
+import PassageView from "@/components/PassageView";
 import WordCard from "@/components/WordCard";
 import { errorMessage, post } from "@/lib/api";
 import type { Done, Sentence, Token, WordInfo } from "@/lib/types";
 import { imeKeys } from "@/lib/romaji";
+import { ROLE_BORDER, ROLE_COLOR } from "@/lib/roles";
 import { useTranslator } from "@/lib/useTranslator";
 
 interface Span extends Token {
@@ -18,10 +20,6 @@ interface Span extends Token {
 }
 
 const TRAILING_PUNCTUATION = /[。.!?！？]+$/;
-
-// Highlight for graded words: amber = new word (furigana shown), aqua = review word (furigana hidden until Tab).
-const ROLE_COLOR: Record<string, string> = { learning: "text-new-word", review: "text-review-word" };
-const ROLE_BORDER: Record<string, string> = { learning: "border-b-2 border-new-word", review: "border-b-2 border-review-word" };
 
 const sameChar = (a: string, b: string) => a === b || a.normalize("NFKC") === b.normalize("NFKC");
 
@@ -197,6 +195,25 @@ export default function Practice() {
         setSwitching(true);
         try {
             await show(await post("/type/mode", { learn_new: learnNew }));
+        } catch {
+            toast.error("Couldn't reach the server. Try again.");
+        } finally {
+            setSwitching(false);
+        }
+    };
+
+    /** Paragraphs on (the passage around the sentence) or off (single sentences). The server answers like /type/next;
+     *  a 400 means it's still locked. */
+    const changeParagraphs = async (on: boolean) => {
+        if (switching) return;
+        setSwitching(true);
+        try {
+            const response = await post("/type/paragraphs", { on });
+            if (response.status === 400) {
+                toast.error(errorMessage(await response.json().catch(() => null), "Paragraphs are still locked."));
+                return;
+            }
+            await show(response);
         } catch {
             toast.error("Couldn't reach the server. Try again.");
         } finally {
@@ -392,10 +409,33 @@ export default function Practice() {
                                         See what&apos;s due
                                     </button>
                                 )}
-                                <ModeSwitch learnNew={stats.learn_new} busy={switching} onChange={changeMode} />
-                                {stats.due > 0 && (
-                                    <DueInfo stats={stats} busy={switching} onReview={() => changeMode(false)} />
-                                )}
+                                <div className="flex items-center gap-3">
+                                    <ModeSwitch
+                                        label="Learn new words"
+                                        checked={stats.learn_new}
+                                        busy={switching}
+                                        onChange={changeMode}
+                                        title={stats.learn_new ? "New words are mixed in with your reviews" : "Review only: just the words that are due"}
+                                    />
+                                    {stats.due > 0 && (
+                                        <DueInfo stats={stats} busy={switching} onReview={() => changeMode(false)} />
+                                    )}
+                                </div>
+                                <ModeSwitch
+                                    label="Paragraphs"
+                                    checked={stats.paragraphs}
+                                    busy={switching}
+                                    onChange={changeParagraphs}
+                                    disabled={!stats.paragraphs_unlocked}
+                                    note={stats.paragraphs_unlocked ? undefined : `N5 ${stats.n5_covered}/${stats.n5_total}`}
+                                    title={
+                                        !stats.paragraphs_unlocked
+                                            ? `Paragraphs unlock once you've covered all ${stats.n5_total} N5 kanji`
+                                            : stats.paragraphs
+                                                ? "Typing one sentence at a time inside a short passage"
+                                                : "Single sentences only"
+                                    }
+                                />
                             </div>
                         )}
                     </div>
@@ -440,9 +480,13 @@ export default function Practice() {
                     {!loadError && sentence && (
                         <div className="panel mt-6 shadow-2xl shadow-black/30">
                             <div className="flex flex-col gap-4 p-5 sm:p-7">
-                                <p className="break-words font-jp text-2xl font-medium leading-[2.5] tracking-wide sm:text-3xl sm:leading-[2.5]" lang="ja">
-                                    {spans.map(renderSpan)}
-                                </p>
+                                {sentence.passage ? (
+                                    <PassageView passage={sentence.passage} current={spans.map(renderSpan)} />
+                                ) : (
+                                    <p className="break-words font-jp text-2xl font-medium leading-[2.5] tracking-wide sm:text-3xl sm:leading-[2.5]" lang="ja">
+                                        {spans.map(renderSpan)}
+                                    </p>
+                                )}
 
                                 {help && (
                                     <div className="flex animate-fade-in flex-col gap-1 border-t border-border pt-3 text-sm sm:text-base">
@@ -472,7 +516,7 @@ export default function Practice() {
                                     onKeyDown={onKeyDown}
                                     className={`w-full rounded-lg border-2 bg-surface-raised px-3 py-2.5 font-jp text-xl text-text outline-none transition-colors placeholder:text-muted/70
                                         ${diverged || notYet ? "border-danger" : "border-border focus:border-accent"} ${notYet ? "animate-pulse" : ""}`}
-                                    placeholder="Type the sentence with Japanese input on"
+                                    placeholder={sentence.passage ? "Type the highlighted sentence" : "Type the sentence with Japanese input on"}
                                 />
 
                                 {inputHint && matched < inputHint.end && (
