@@ -49,16 +49,17 @@ function spansOf(tokens: Token[]): Span[] {
 }
 
 interface CardWord {
-    key: string;  // "w<word id>" for kanji words, "k<kana word id>" for kana words
+    key: string;  // "w<word id>" for kanji words, "k<kana word id>" for kana words, "x<token index>" for names/numbers/counters
     id: number;
-    role: "learning" | "review" | "known" | "unseen" | "kana";
+    role: "learning" | "review" | "known" | "unseen" | "kana" | "other";
     info: WordInfo;
 }
 
-/** The card a token opens with Tab, or null for grammar (particles, endings, punctuation) and names. */
+/** The card a token opens with Tab, or null for grammar (particles, endings, punctuation). */
 const cardKey = (span: Span, sentence: Sentence) => {
     if (span.word != null && sentence.words?.[String(span.word)]) return `w${span.word}`;
     if (span.lookup != null && sentence.kana_words?.[String(span.lookup)]) return `k${span.lookup}`;
+    if (span.extra != null && sentence.extra_words?.[String(span.extra)]) return `x${span.extra}`;
     return null;
 };
 
@@ -93,7 +94,7 @@ export default function Practice() {
     const matched = sentence ? matchedLength(input, sentence.text) : 0;
     const diverged = !composing && input.length > matched;
 
-    // Every possible dictionary card, in sentence order: kanji words and kana words with a meaning.
+    // Every possible dictionary card, in sentence order: kanji words, kana words with a meaning, and names/numbers/counters.
     const cardWords = useMemo<CardWord[]>(() => {
         if (!sentence) return [];
         const seen = new Set<string>();
@@ -110,6 +111,11 @@ export default function Practice() {
                 if (seen.has(key)) continue;
                 seen.add(key);
                 words.push({ key, id: span.lookup, role: "kana", info: sentence.kana_words[String(span.lookup)] });
+            } else if (span.extra != null && sentence.extra_words?.[String(span.extra)]) {
+                const key = `x${span.extra}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                words.push({ key, id: span.extra, role: "other", info: sentence.extra_words[String(span.extra)] });
             }
         }
         return words;
@@ -261,7 +267,7 @@ export default function Practice() {
                 toggleHelp();
                 return;
             }
-            // The next word you haven't typed yet, whatever kind it is (only grammar and names are skipped).
+            // The next word you haven't typed yet, whatever kind it is (only grammar is skipped).
             // Hidden furigana: show the reading, which counts in FSRS. Anything else just opens its card.
             const next = spans.find((s) => s.end > matched && cardKey(s, sentence) != null);
             if (!next) return;

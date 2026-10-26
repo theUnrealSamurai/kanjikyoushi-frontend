@@ -8,6 +8,7 @@ export interface Token {
     role: Role;
     ruby: [string, string][];  // [text, reading] pairs; the reading is "" over kana
     lookup: number | null;     // kana-only word with a meaning (key into kana_words); Tab shows it, never graded
+    extra: number | null;      // kanji name/number/counter with no dictionary word (key into extra_words); Tab shows it, never graded
 }
 
 export interface KanjiInfo {
@@ -41,6 +42,7 @@ export interface Sentence {
     tokens: Token[];
     words: Record<string, WordInfo>;  // keyed by word id: every learning, review and known word
     kana_words: Record<string, WordInfo>;  // keyed by token lookup id: meanings for kana-only words
+    extra_words: Record<string, WordInfo>;  // keyed by token extra id: kanji breakdown for names, numbers and counters
     stats: Stats;
 }
 
