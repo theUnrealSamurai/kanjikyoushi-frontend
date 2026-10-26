@@ -3,6 +3,9 @@
 import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import DueInfo from "@/components/DueInfo";
+import DuePanel from "@/components/DuePanel";
+import ModeSwitch from "@/components/ModeSwitch";
 import WordCard from "@/components/WordCard";
 import { errorMessage, post } from "@/lib/api";
 import type { Done, Sentence, Token, WordInfo } from "@/lib/types";
@@ -82,6 +85,8 @@ export default function Practice() {
     const [inputHint, setInputHint] = useState<{ text: string; keys: string; end: number } | null>(null);
     const [help, setHelp] = useState(false);
     const [notYet, setNotYet] = useState(false);
+    const [switching, setSwitching] = useState(false);  // a learn/review switch request is in flight
+    const [showDue, setShowDue] = useState(false);      // the side panel listing what's due
     const translator = useTranslator();
 
     const spans = useMemo(() => (sentence ? spansOf(sentence.tokens) : []), [sentence]);
@@ -178,6 +183,19 @@ export default function Practice() {
         setSentence(null);
         setDone(null);
         setReloadKey((key) => key + 1);
+    };
+
+    /** Learn (new words plus reviews) or review only. The server swaps the sentence on screen for one that fits the mode. */
+    const changeMode = async (learnNew: boolean) => {
+        if (switching) return;
+        setSwitching(true);
+        try {
+            await show(await post("/type/mode", { learn_new: learnNew }));
+        } catch {
+            toast.error("Couldn't reach the server. Try again.");
+        } finally {
+            setSwitching(false);
+        }
     };
 
     const submit = async (typed: string) => {
@@ -349,13 +367,34 @@ export default function Practice() {
                             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-review-word" />review</span>
                         </div>
                         {stats && (
-                            <div className="flex gap-2 text-xs font-semibold">
-                                <span className="rounded-lg bg-accent/15 px-2.5 py-1 text-accent">Learned {stats.learned}</span>
-                                <span className="rounded-lg border border-border bg-surface px-2.5 py-1">Due {stats.due}</span>
-                                <span className="rounded-lg border border-border bg-surface px-2.5 py-1">Learning {stats.learning}</span>
+                            <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
+                                <span
+                                    title="New words that finished their warm-up today"
+                                    className="rounded-lg bg-new-word/15 px-2.5 py-1 text-xs font-semibold text-new-word"
+                                >
+                                    {stats.learned_today} new today
+                                </span>
+                                {stats.due > 0 && (
+                                    <button
+                                        type="button"
+                                        aria-expanded={showDue}
+                                        onClick={() => setShowDue(!showDue)}
+                                        // Keep focus in the typing input: pressing the button must not blur it.
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        className="rounded-lg border border-review-word/40 px-2.5 py-1 text-xs font-semibold text-review-word transition-colors hover:bg-review-word/15"
+                                    >
+                                        See what&apos;s due
+                                    </button>
+                                )}
+                                <ModeSwitch learnNew={stats.learn_new} busy={switching} onChange={changeMode} />
+                                {stats.due > 0 && (
+                                    <DueInfo stats={stats} busy={switching} onReview={() => changeMode(false)} />
+                                )}
                             </div>
                         )}
                     </div>
+
+                    {stats && <DuePanel open={showDue} stats={stats} onClose={() => setShowDue(false)} />}
 
                     {loadError && (
                         <div className="panel mt-6 p-8 text-center" role="alert">
@@ -372,13 +411,19 @@ export default function Practice() {
                                     <p className="text-xl font-bold">No sentences loaded yet</p>
                                     <p className="mt-2 text-muted">Run <code className="rounded bg-surface-raised px-1.5 py-0.5 text-text">build_corpus</code> on the backend, then check again.</p>
                                 </>
+                            ) : !done.stats.learn_new ? (
+                                <>
+                                    <p className="text-xl font-bold">No reviews due</p>
+                                    <p className="mt-2 text-muted">You&apos;ve cleared everything that&apos;s due. Turn on Learn new words to keep going.</p>
+                                    <button type="button" disabled={switching} onClick={() => changeMode(true)} className="btn-primary mt-5">Learn new words</button>
+                                </>
                             ) : (
                                 <>
                                     <p className="text-xl font-bold">All caught up</p>
                                     <p className="mt-2 text-muted">Nothing is due right now, so come back later.</p>
                                 </>
                             )}
-                            <button type="button" onClick={retry} className="btn-ghost mt-5">Check again</button>
+                            <button type="button" onClick={retry} className={`btn-ghost ${done.corpus_empty || done.stats.learn_new ? "mt-5" : "ml-3 mt-5"}`}>Check again</button>
                         </div>
                     )}
 

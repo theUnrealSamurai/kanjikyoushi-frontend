@@ -32,6 +32,8 @@ export async function post(path: string, body?: object, { auth = true } = {}): P
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            // The backend works out "today" (stats, words learned today) in the browser's timezone.
+            "X-Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
             ...(auth ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: body ? JSON.stringify(body) : undefined,

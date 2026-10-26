@@ -26,7 +26,8 @@ const NavBar: React.FC = () => {
         router.push("/");
     };
 
-    const typing = pathname.startsWith("/type");
+    const typing = pathname.startsWith("/type/practice") || pathname.startsWith("/type/onboard");
+    const stats = pathname.startsWith("/type/stats");
     const signedIn = username !== "" && username !== GUEST;
 
     return (
@@ -36,9 +37,17 @@ const NavBar: React.FC = () => {
                 <div className="flex items-center gap-1 text-sm font-semibold sm:gap-3">
                     <Link
                         href="/type/practice"
+                        aria-current={typing ? "page" : undefined}
                         className={`rounded-lg px-3 py-1.5 transition-colors hover:text-accent ${typing ? "bg-accent/15 text-accent" : "text-muted"}`}
                     >
                         Type
+                    </Link>
+                    <Link
+                        href="/type/stats"
+                        aria-current={stats ? "page" : undefined}
+                        className={`rounded-lg px-3 py-1.5 transition-colors hover:text-accent ${stats ? "bg-accent/15 text-accent" : "text-muted"}`}
+                    >
+                        Stats
                     </Link>
                     <div className="group relative">
                         <button
