@@ -9,6 +9,7 @@ import ModeSwitch from "@/components/ModeSwitch";
 import PassageView from "@/components/PassageView";
 import WordCard from "@/components/WordCard";
 import { errorMessage, post } from "@/lib/api";
+import { plural } from "@/lib/plural";
 import type { Done, Sentence, Token, WordInfo } from "@/lib/types";
 import { imeKeys } from "@/lib/romaji";
 import { ROLE_BORDER, ROLE_COLOR } from "@/lib/roles";
@@ -409,6 +410,10 @@ export default function Practice() {
                                         className="rounded-lg border border-review-word/40 px-2.5 py-1 text-xs font-semibold text-review-word transition-colors hover:bg-review-word/15"
                                     >
                                         See what&apos;s due
+                                        <span className="ml-1.5 font-normal text-review-word/80">
+                                            · {plural(stats.due, "word")}
+                                            {stats.due_kanji > 0 && <> · {plural(stats.due_kanji, "kanji", "kanji")}</>}
+                                        </span>
                                     </button>
                                 )}
                                 <div className="flex items-center gap-3">
