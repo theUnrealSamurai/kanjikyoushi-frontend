@@ -70,6 +70,7 @@ export interface Sentence {
     extra_words: Record<string, WordInfo>;  // keyed by token extra id: kanji breakdown for names, numbers and counters
     stats: Stats;
     passage: PassageView | null;  // set in paragraph mode; null for a single sentence
+    prefetch?: boolean;  // ask /type/prefetch to prepare the next sentence while this one is typed (learners from N2 on)
 }
 
 export interface Done {

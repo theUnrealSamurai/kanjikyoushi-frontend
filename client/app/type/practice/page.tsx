@@ -153,6 +153,8 @@ export default function Practice() {
         }
         const payload = data as Sentence | Done;
         const finished = "done" in payload && payload.done;
+        // From N2 on, picking a sentence is slow on the phone: the server prepares the next one while this is typed.
+        if (!finished && (payload as Sentence).prefetch) post("/type/prefetch").catch(() => {});
         setLoadError(null);
         setSentence(finished ? null : (payload as Sentence));
         setDone(finished ? (payload as Done) : null);
