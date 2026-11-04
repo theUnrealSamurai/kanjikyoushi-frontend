@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import homeLines from "@/json/homeLines.json";
@@ -9,8 +10,12 @@ type Word = { word: string; reading: string; kind: "new" | "review" };
 type LinePart = string | Word;
 const LINES = homeLines as LinePart[][];
 
-const REPO = "https://github.com/theUnrealSamurai/kanjikyoushi-frontend";
-const PROFILE = "https://github.com/theUnrealSamurai";
+const FRONTEND_REPO = "https://github.com/theUnrealSamurai/kanjikyoushi-frontend";
+const BACKEND_REPO = "https://github.com/theUnrealSamurai/kanjikyoushi-backend";
+const REPOS = [
+    { name: "Frontend", what: "The website (Next.js)", href: FRONTEND_REPO },
+    { name: "Backend", what: "The logic (Django)", href: BACKEND_REPO },
+];
 
 const WORD_STYLE = {
     new: "border-b-2 border-new-word text-new-word",
@@ -118,9 +123,11 @@ export default function Home() {
                         Good old fuckin&apos; logic. Everything here is deterministic: same input, same result,
                         every time.
                     </p>
-                    <a href={PROFILE} target="_blank" rel="noreferrer" className="mt-6 inline-block font-semibold text-accent hover:underline">
-                        Go check my GitHub to see how it works →
-                    </a>
+                    <div className="mt-6">
+                        <GitHubMenu className="font-semibold text-accent hover:underline">
+                            Go check my GitHub to see how it works →
+                        </GitHubMenu>
+                    </div>
                 </div>
             </section>
 
@@ -141,8 +148,8 @@ export default function Home() {
                     </p>
                     <p>Want features or some shit like that? Ask me, I&apos;ll consider.</p>
                     <div className="flex flex-wrap gap-3 pt-2">
-                        <a href={REPO} target="_blank" rel="noreferrer" className="btn-primary">★ Star on GitHub</a>
-                        <a href={`${REPO}/issues`} target="_blank" rel="noreferrer" className="btn-ghost">Request a feature</a>
+                        <GitHubMenu className="btn-primary">★ Star on GitHub</GitHubMenu>
+                        <a href={`${FRONTEND_REPO}/issues`} target="_blank" rel="noreferrer" className="btn-ghost">Request a feature</a>
                     </div>
                 </div>
             </section>
@@ -162,9 +169,31 @@ export default function Home() {
             </section>
 
             <footer className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-6 text-sm text-muted">
-                <a href={REPO} target="_blank" rel="noreferrer" className="hover:text-accent">GitHub</a>
+                <GitHubMenu up className="hover:text-accent">GitHub</GitHubMenu>
                 <p>© {new Date().getFullYear()} Type Kanji</p>
             </footer>
+        </div>
+    );
+}
+
+/** A GitHub link that offers both repos. Like the NavBar's user menu, it opens on hover, focus or tap, with no
+ *  script; `up` opens it above the link, for the footer. */
+function GitHubMenu({ className, up = false, children }: { className: string; up?: boolean; children: ReactNode }) {
+    return (
+        <div className="group relative inline-block">
+            <button type="button" aria-haspopup="menu" className={className}>
+                {children}
+            </button>
+            <div className={`invisible absolute left-0 z-20 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 ${up ? "bottom-full pb-2" : "top-full pt-2"}`}>
+                <div className="min-w-[13rem] rounded-xl border border-border bg-surface-raised p-1 text-left shadow-xl shadow-black/40">
+                    {REPOS.map((repo) => (
+                        <a key={repo.name} href={repo.href} target="_blank" rel="noreferrer" className="block rounded-lg px-3 py-2 hover:bg-accent/15 hover:text-accent">
+                            <span className="block text-sm font-semibold">{repo.name}</span>
+                            <span className="block text-xs text-muted">{repo.what}</span>
+                        </a>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 }
@@ -189,7 +218,6 @@ function TypingDemo({ line }: { line: LinePart[] }) {
                     <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-new-word" />new word</span>
                     <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-review-word" />review</span>
                 </div>
-                <span>↻ refresh for another</span>
             </div>
             <div className="flex flex-col gap-5 p-5 sm:p-7">
                 <p className="break-words font-jp text-2xl font-medium leading-[2.4] tracking-wide sm:text-4xl sm:leading-[2.4]" lang="ja">
