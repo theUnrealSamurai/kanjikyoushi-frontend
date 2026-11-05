@@ -10,7 +10,7 @@ import PassageView from "@/components/PassageView";
 import WordCard from "@/components/WordCard";
 import { errorMessage, post } from "@/lib/api";
 import { plural } from "@/lib/plural";
-import type { Done, Sentence, Token, WordInfo } from "@/lib/types";
+import type { Done, Outcome, Sentence, Token, WordInfo } from "@/lib/types";
 import { imeKeys } from "@/lib/romaji";
 import { ROLE_BORDER, ROLE_COLOR } from "@/lib/roles";
 import { useTranslator } from "@/lib/useTranslator";
@@ -18,6 +18,22 @@ import { useTranslator } from "@/lib/useTranslator";
 interface Span extends Token {
     start: number;  // character offsets of the token in the sentence
     end: number;
+}
+
+/** The pill behind a flashed grade: its label and colour (full class names so Tailwind sees them). */
+const GRADE_PILL: Record<Outcome, { label: string; className: string }> = {
+    easy: { label: "EASY", className: "bg-grade-easy" },
+    good: { label: "GOOD", className: "bg-grade-good" },
+    hard: { label: "HARD", className: "bg-grade-hard" },
+    again: { label: "AGAIN", className: "bg-grade-again" },
+    check: { label: "CHECK TOMORROW", className: "bg-grade-muted" },
+    warmup: { label: "WARM-UP", className: "bg-grade-muted" },
+};
+const FLASH_MS = 1500;
+
+interface Flash {
+    n: number;  // changes with every flash so the pills' appear animation restarts
+    items: { id: number; text: string; outcome: Outcome }[];
 }
 
 const TRAILING_PUNCTUATION = /[。.!?！？]+$/;
@@ -91,6 +107,14 @@ export default function Practice() {
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
     const submitting = useRef(false);
+    // The grade flash lives outside the per-sentence reset in show(): typing the last character submits at once and
+    // the next sentence replaces this one, but the last word's flash must keep showing.
+    const [flash, setFlash] = useState<Flash | null>(null);
+    const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const flashCount = useRef(0);
+    const committed = useRef(0);                          // characters matched as of the last committed (non-composing) text
+    const flashed = useRef<Record<string, Outcome>>({});  // what was flashed for the sentence on screen, to check the server's answer
+    const helpUsed = useRef(false);                       // help mode was on at some point in this sentence
 
     const [sentence, setSentence] = useState<Sentence | null>(null);
     const [done, setDone] = useState<Done | null>(null);
@@ -153,7 +177,11 @@ export default function Practice() {
         if (focusCard) document.querySelector(`[data-card="${focusCard.key}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }, [focusCard]);
 
-    const show = useCallback(async (response: Response) => {
+    useEffect(() => () => {
+        if (flashTimer.current) clearTimeout(flashTimer.current);
+    }, []);
+
+    const show = useCallback(async (response: Response, flashedBefore?: Record<string, Outcome>) => {
         if (response.status === 409) {
             router.push("/type/onboard");
             return;
@@ -173,12 +201,24 @@ export default function Practice() {
         }
         const payload = data as Sentence | Done;
         const finished = "done" in payload && payload.done;
+        if (flashedBefore && payload.graded) {
+            // Dev aid: what was flashed while typing should be what the server applied.
+            const applied = payload.graded;
+            const mismatched = [...new Set([...Object.keys(flashedBefore), ...Object.keys(applied)])].filter((id) => flashedBefore[id] !== applied[id]);
+            if (mismatched.length > 0) {
+                console.warn("Flashed grades differ from the server's", Object.fromEntries(mismatched.map((id) => [id, { flashed: flashedBefore[id] ?? null, graded: applied[id] ?? null }])));
+            }
+        }
         // From N2 on, picking a sentence is slow on the phone: the server prepares the next one while this is typed.
         if (!finished && (payload as Sentence).prefetch) post("/type/prefetch").catch(() => {});
         setLoadError(null);
         setSentence(finished ? null : (payload as Sentence));
         setDone(finished ? (payload as Done) : null);
-        setInput(finished ? "" : settle("", (payload as Sentence).text));  // a sentence can start with a name
+        const start = finished ? "" : settle("", (payload as Sentence).text);  // a sentence can start with a name
+        setInput(start);
+        committed.current = finished ? 0 : matchedLength(start, (payload as Sentence).text);
+        flashed.current = {};
+        helpUsed.current = false;
         setRevealed(new Set());
         setOpened(new Set());
         setFocusCard(null);
@@ -248,19 +288,44 @@ export default function Practice() {
     const submit = async (typed: string) => {
         if (!sentence || submitting.current) return;
         submitting.current = true;
+        const flashedNow = { ...flashed.current };
         try {
             const response = await post("/type/submit", {
                 sentence_id: sentence.sentence_id,
                 typed,
                 revealed: Array.from(revealed),
                 skipped: Array.from(skipped),
+                help: helpUsed.current,
             });
             // A 400 means the sentence went stale (e.g. graded in another tab); just move on.
-            await show(response.status === 400 ? await post("/type/next") : response);
+            await show(response.status === 400 ? await post("/type/next") : response, response.status === 400 ? undefined : flashedNow);
         } catch {
             submitting.current = false;
             toast.error("Couldn't reach the server. Press Enter to try again.");
         }
+    };
+
+    /** Flashes the grade of every graded word that the committed text has just completed (all of an IME commit's
+     *  words together, in sentence order). Works from the sentence's own spans, so it still sees the last word when
+     *  typing it submits the sentence and the next one is about to replace it. */
+    const flashCompleted = (at: number) => {
+        if (!sentence) return;
+        const from = committed.current;
+        committed.current = at;
+        if (at <= from) return;
+        const items: Flash["items"] = [];
+        for (const span of spans) {
+            if (span.word == null || !span.grade || span.end <= from || span.end > at) continue;
+            const outcome = revealed.has(span.word) ? span.grade.tab : skipped.has(span.word) ? span.grade.skip : span.grade.clean;
+            if (!outcome) continue;
+            items.push({ id: span.word, text: span.text, outcome });
+            flashed.current[String(span.word)] = outcome;
+        }
+        if (items.length === 0) return;
+        flashCount.current += 1;
+        setFlash({ n: flashCount.current, items });
+        if (flashTimer.current) clearTimeout(flashTimer.current);
+        flashTimer.current = setTimeout(() => setFlash(null), FLASH_MS);
     };
 
     /** Runs on committed text, never mid-IME-composition: fills in katakana (see settle), and typing the whole
@@ -270,6 +335,7 @@ export default function Practice() {
         const settled = settle(value, sentence.text, fill);
         if (settled !== value) setInput(settled);
         const at = matchedLength(settled, sentence.text);
+        flashCompleted(at);
         if (at === sentence.text.length && settled.length === at) submit(settled);
     };
 
@@ -282,6 +348,7 @@ export default function Practice() {
             // Straight from the key handler: the translator may need user activation to download its model.
             if (!sentence.translation) translator.request(sentence.sentence_id, sentence.text);
         }
+        if (!help) helpUsed.current = true;
         setHelp(!help);
     };
 
@@ -293,7 +360,7 @@ export default function Practice() {
         if (!next) return;
         const kana = next.ruby.map(([base, reading]) => reading || base).join("");
         setInputHint({ text: next.text, keys: imeKeys(kana), end: next.end });
-        if ((next.role === "test" || next.role === "review") && next.word != null) setSkipped(new Set(skipped).add(next.word));
+        if ((next.role === "test" || next.role === "review" || next.role === "known") && next.word != null) setSkipped(new Set(skipped).add(next.word));
     };
 
     const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -529,29 +596,49 @@ export default function Practice() {
                                     </div>
                                 )}
 
-                                <input
-                                    ref={inputRef}
-                                    value={input}
-                                    lang="ja"
-                                    autoComplete="off"
-                                    autoCapitalize="off"
-                                    spellCheck={false}
-                                    onChange={(e) => {
-                                        const event = e.nativeEvent as InputEvent;
-                                        setInput(e.target.value);
-                                        // Backspacing into a name must not fill it straight back in.
-                                        if (!event.isComposing) evaluate(e.target.value, !event.inputType?.startsWith("delete"));
-                                    }}
-                                    onCompositionStart={() => setComposing(true)}
-                                    onCompositionEnd={(e) => {
-                                        setComposing(false);
-                                        evaluate(e.currentTarget.value);
-                                    }}
-                                    onKeyDown={onKeyDown}
-                                    className={`w-full rounded-lg border-2 bg-surface-raised px-3 py-2.5 font-jp text-xl text-text outline-none transition-colors placeholder:text-muted/70
-                                        ${diverged || notYet ? "border-danger" : "border-border focus:border-accent"} ${notYet ? "animate-pulse" : ""}`}
-                                    placeholder={sentence.passage ? "Type the highlighted sentence" : "Type the sentence with Japanese input on"}
-                                />
+                                <div className="relative">
+                                    {flash && (
+                                        <div
+                                            key={flash.n}
+                                            aria-hidden="true"
+                                            data-testid="grade-flash"
+                                            className="pointer-events-none absolute -top-2.5 right-3 z-10 flex max-w-[calc(100%-1.5rem)] flex-wrap justify-end gap-1"
+                                        >
+                                            {flash.items.map((item, i) => (
+                                                <span
+                                                    key={`${item.id}-${i}`}
+                                                    className={`flex animate-card-in items-baseline gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-bold leading-4 text-accent-fg shadow-md shadow-black/30 ${GRADE_PILL[item.outcome].className}`}
+                                                >
+                                                    <span lang="ja" className="font-jp">{item.text}</span>
+                                                    <span className="tracking-wide">{GRADE_PILL[item.outcome].label}</span>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <input
+                                        ref={inputRef}
+                                        value={input}
+                                        lang="ja"
+                                        autoComplete="off"
+                                        autoCapitalize="off"
+                                        spellCheck={false}
+                                        onChange={(e) => {
+                                            const event = e.nativeEvent as InputEvent;
+                                            setInput(e.target.value);
+                                            // Backspacing into a name must not fill it straight back in.
+                                            if (!event.isComposing) evaluate(e.target.value, !event.inputType?.startsWith("delete"));
+                                        }}
+                                        onCompositionStart={() => setComposing(true)}
+                                        onCompositionEnd={(e) => {
+                                            setComposing(false);
+                                            evaluate(e.currentTarget.value);
+                                        }}
+                                        onKeyDown={onKeyDown}
+                                        className={`w-full rounded-lg border-2 bg-surface-raised px-3 py-2.5 font-jp text-xl text-text outline-none transition-colors placeholder:text-muted/70
+                                            ${diverged || notYet ? "border-danger" : "border-border focus:border-accent"} ${notYet ? "animate-pulse" : ""}`}
+                                        placeholder={sentence.passage ? "Type the highlighted sentence" : "Type the sentence with Japanese input on"}
+                                    />
+                                </div>
 
                                 {inputHint && matched < inputHint.end && (
                                     <div data-testid="input-hint" className="flex animate-fade-in flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2">

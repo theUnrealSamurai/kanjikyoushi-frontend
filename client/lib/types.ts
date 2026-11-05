@@ -2,6 +2,16 @@
 
 export type Role = "review" | "learning" | "test" | "unseen" | "known" | null;
 
+/** What FSRS gives a graded word, as the server will apply it ("check" = check tomorrow, "warmup" = a new word's warm-up). */
+export type Outcome = "easy" | "good" | "hard" | "again" | "check" | "warmup";
+
+/** What a graded word gets in each case; null means nothing to show for that case. */
+export interface TokenGrade {
+    clean: Outcome | null;  // typed with no Tab, help or ⌥Tab
+    tab: Outcome | null;    // its reading was revealed (Tab or help)
+    skip: Outcome | null;   // ⌥Tab was used on it (and it wasn't revealed)
+}
+
 export interface Token {
     text: string;
     word: number | null;
@@ -9,6 +19,7 @@ export interface Token {
     ruby: [string, string][];  // [text, reading] pairs; the reading is "" over kana
     lookup: number | null;     // kana-only word with a meaning (key into kana_words); Tab shows it, never graded
     extra: number | null;      // kanji name/number/counter with no dictionary word (key into extra_words); Tab shows it, never graded
+    grade?: TokenGrade | null; // only on the top-level tokens (the line being typed); null/missing: nothing to flash
 }
 
 export interface KanjiInfo {
@@ -70,11 +81,13 @@ export interface Sentence {
     extra_words: Record<string, WordInfo>;  // keyed by token extra id: kanji breakdown for names, numbers and counters
     stats: Stats;
     passage: PassageView | null;  // set in paragraph mode; null for a single sentence
+    graded?: Record<string, Outcome>;  // only on a /type/submit response: what the server applied to the sentence just submitted
     prefetch?: boolean;  // ask /type/prefetch to prepare the next sentence while this one is typed (learners from N2 on)
 }
 
 export interface Done {
     done: true;
+    graded?: Record<string, Outcome>;  // as on Sentence
     corpus_empty: boolean;
     stats: Stats;
 }

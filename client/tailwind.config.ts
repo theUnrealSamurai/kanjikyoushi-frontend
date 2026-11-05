@@ -26,6 +26,13 @@ const config: Config = {
         "review-word": "#3DDBD0",       // aqua: a word coming back for review (furigana hidden)
         danger: "#FF6B81",
         success: "#4ADE9B",
+        grade: {                        // the FSRS grade flashed while typing (easy = accent, good = success, again = danger)
+          easy: "#7C85FF",
+          good: "#4ADE9B",
+          hard: "#FF8C42",
+          again: "#FF6B81",
+          muted: "#8F9AC0",             // check tomorrow, warm-up
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "var(--font-jp)", "system-ui", "sans-serif"],
