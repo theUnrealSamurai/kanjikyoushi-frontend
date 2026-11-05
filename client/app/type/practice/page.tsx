@@ -22,13 +22,33 @@ interface Span extends Token {
 
 const TRAILING_PUNCTUATION = /[。.!?！？]+$/;
 
-const sameChar = (a: string, b: string) => a === b || a.normalize("NFKC") === b.normalize("NFKC");
+const KATAKANA = "ァ-ヴヷ-ヺｦ-ﾝ";  // letters, as in the backend's KATAKANA_RE (not ヵ/ヶ, counters)
+// A katakana word starting at lastIndex, or the rest of one: long marks, ﾞﾟ and names joined with ・ (トム・クルーズ).
+const KATAKANA_WORD = new RegExp(`(?:[${KATAKANA}]|(?<=[${KATAKANA}ー])[ー・])[${KATAKANA}ー・ﾞﾟ]*`, "y");
+
+/** Hiragana typed where the sentence has katakana counts: ありす for アリス, without converting. */
+const kanaFor = (typed: string, target: string) => {
+    const code = target.normalize("NFKC").charCodeAt(0);
+    return code >= 0x30a1 && code <= 0x30f6 && typed.charCodeAt(0) === code - 0x60;
+};
+
+const sameChar = (a: string, b: string) => a === b || a.normalize("NFKC") === b.normalize("NFKC") || kanaFor(a, b);
 
 /** How many characters at the start of the input match the sentence. */
 function matchedLength(input: string, target: string) {
     let i = 0;
     while (i < input.length && i < target.length && sameChar(input[i], target[i])) i++;
     return i;
+}
+
+/** Committed text, tidied up. Katakana is never typed (in this corpus it's mostly made-up names): once everything
+ *  before it is right, it's filled in for you, unless you're deleting. Hiragana typed in its place becomes katakana. */
+function settle(input: string, target: string, fill = true) {
+    const at = matchedLength(input, target);
+    const settled = target.slice(0, at) + input.slice(at);
+    if (!fill || at < input.length) return settled;
+    KATAKANA_WORD.lastIndex = at;
+    return settled + (KATAKANA_WORD.exec(target)?.[0] ?? "");
 }
 
 /** Same rule as the backend: an exact match, or one that only leaves off the final 。 */
@@ -158,7 +178,7 @@ export default function Practice() {
         setLoadError(null);
         setSentence(finished ? null : (payload as Sentence));
         setDone(finished ? (payload as Done) : null);
-        setInput("");
+        setInput(finished ? "" : settle("", (payload as Sentence).text));  // a sentence can start with a name
         setRevealed(new Set());
         setOpened(new Set());
         setFocusCard(null);
@@ -243,12 +263,14 @@ export default function Practice() {
         }
     };
 
-    /** Runs on committed text, never mid-IME-composition: typing the whole sentence submits it.
-     *  Typos only turn the box red so you can fix them; they never affect grading. */
-    const evaluate = (value: string) => {
+    /** Runs on committed text, never mid-IME-composition: fills in katakana (see settle), and typing the whole
+     *  sentence submits it. Typos only turn the box red so you can fix them; they never affect grading. */
+    const evaluate = (value: string, fill = true) => {
         if (!sentence) return;
-        const at = matchedLength(value, sentence.text);
-        if (at === sentence.text.length && value.length === at) submit(value);
+        const settled = settle(value, sentence.text, fill);
+        if (settled !== value) setInput(settled);
+        const at = matchedLength(settled, sentence.text);
+        if (at === sentence.text.length && settled.length === at) submit(settled);
     };
 
     const toggleHelp = () => {
@@ -304,8 +326,9 @@ export default function Practice() {
         if (e.nativeEvent.isComposing || e.keyCode === 229) return;
         if (e.key === "Enter") {
             e.preventDefault();
-            if (isComplete(input, sentence.text)) {
-                submit(input);
+            const typed = settle(input, sentence.text, false);
+            if (isComplete(typed, sentence.text)) {
+                submit(typed);
             } else {
                 setNotYet(true);
                 setTimeout(() => setNotYet(false), 400);
@@ -514,8 +537,10 @@ export default function Practice() {
                                     autoCapitalize="off"
                                     spellCheck={false}
                                     onChange={(e) => {
+                                        const event = e.nativeEvent as InputEvent;
                                         setInput(e.target.value);
-                                        if (!(e.nativeEvent as InputEvent).isComposing) evaluate(e.target.value);
+                                        // Backspacing into a name must not fill it straight back in.
+                                        if (!event.isComposing) evaluate(e.target.value, !event.inputType?.startsWith("delete"));
                                     }}
                                     onCompositionStart={() => setComposing(true)}
                                     onCompositionEnd={(e) => {

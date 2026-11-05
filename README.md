@@ -24,6 +24,9 @@ Type the sentence with your Japanese input method on. Everything works from the 
 | `Shift+Tab` | help: every reading, every dictionary card, romaji and an English translation (untyped review words count as Hard) |
 | `Enter` | submit; a fully typed sentence also submits by itself |
 
+Katakana is never typed: once everything before it is right, the box fills it in (deleting doesn't refill it). If the
+IME commits past it, hiragana counts too (ありす for アリス) and is swapped for the katakana.
+
 New words show their dictionary card (meanings plus a kanji breakdown) at the bottom of the page, except on their test, where Tab opens it.
 The English translation comes from Chrome's built-in Translator API (Chrome 138+, on-device; the first use downloads the ja to en model).
 Signed-out visitors are redirected from `/type/*` to `/login` by `middleware.ts`.
