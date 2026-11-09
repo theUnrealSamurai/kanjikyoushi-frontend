@@ -102,6 +102,11 @@ export default function Stats() {
     );
 }
 
+/** A rough duration for a tile: "1.5 h" from an hour up, otherwise whole minutes. */
+function duration(seconds: number) {
+    return seconds >= 3600 ? `${(seconds / 3600).toFixed(1)} h` : `${Math.round(seconds / 60)} min`;
+}
+
 /** Tiles and charts for one report. */
 function Dashboard({ report }: { report: StatsReport }) {
     const { totals, today, days, forecast, jlpt } = report;
@@ -118,12 +123,17 @@ function Dashboard({ report }: { report: StatsReport }) {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <StatTile label="Kanji learned" value={totals.kanji} note={`+ ${totals.known_kanji} known before`} />
+                <StatTile label="Kanji learned here" value={totals.kanji} note={`+ ${totals.known_kanji} known before`} />
                 <StatTile label="Words learned" value={totals.words} note={totals.learning > 0 ? `${totals.learning} still warming up` : undefined} />
                 <StatTile
                     label="Today"
                     value={today.words}
                     note={`new ${today.words === 1 ? "word" : "words"} · ${plural(today.reviews, "review")} · ${plural(today.sentences, "sentence")}`}
+                />
+                <StatTile
+                    label="Time typing"
+                    value={duration(totals.typing_seconds)}
+                    note={`estimate · ${duration(today.typing_seconds)} today`}
                 />
                 <StatTile label="Day streak" value={totals.streak} note={totals.streak > 0 ? "days in a row" : "type a sentence to start one"} />
                 <StatTile

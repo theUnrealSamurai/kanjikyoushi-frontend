@@ -124,6 +124,7 @@ export interface StatsDay {
     reviews: number;      // reviews of learned words
     hard: number;         // of those, how many needed the reading shown (Tab or help)
     sentences: number;    // sentences typed
+    typing_seconds: number;  // rough time typing that day
     total_words: number;  // learned words at the end of that day (including ones learned before tracking)
     total_kanji: number;  // kanji learned in the app at the end of that day
 }
@@ -136,7 +137,7 @@ export interface JlptProgress {
 }
 
 export interface StatsReport {
-    today: { words: number; kanji: number; reviews: number; sentences: number };
+    today: { words: number; kanji: number; reviews: number; sentences: number; typing_seconds: number };
     totals: {
         words: number;              // learned words
         kanji: number;              // kanji learned in the app (in learned words, not known at onboarding)
@@ -144,6 +145,7 @@ export interface StatsReport {
         learning: number;           // new words still warming up
         due: number;
         sentences: number;          // since tracking began
+        typing_seconds: number;     // rough time typing since tracking began: gaps between sentences of up to 3 minutes
         reviews: number;            // since tracking began
         retention: number | null;   // share of reviews in the window passed without help, 0-1; null when none
         streak: number;             // days in a row with a sentence typed, ending today (or yesterday)
