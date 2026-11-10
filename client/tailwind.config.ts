@@ -47,8 +47,29 @@ const config: Config = {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        // A kanji milestone: the badge pops in like a stamp and fades after ~3 s (CELEBRATION_MS); the confetti flies out.
+        "celebrate-badge": {
+          "0%": { opacity: "0", transform: "scale(2) rotate(-10deg)" },
+          "10%": { opacity: "1", transform: "scale(0.94) rotate(-3deg)" },
+          "18%": { transform: "scale(1.04) rotate(1deg)" },
+          "26%, 82%": { opacity: "1", transform: "scale(1) rotate(0deg)" },
+          "100%": { opacity: "0", transform: "translateY(-10px) scale(0.98)" },
+        },
+        "celebrate-fade": {
+          "0%": { opacity: "0" },
+          "12%, 82%": { opacity: "1" },
+          "100%": { opacity: "0" },
+        },
+        "celebrate-burst": {
+          "0%": { opacity: "1", transform: "translate(0, 0) rotate(0deg) scale(0.4)" },
+          "20%": { opacity: "1" },
+          "100%": { opacity: "0", transform: "translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1)" },
+        },
       },
       animation: {
+        "celebrate-badge": "celebrate-badge 3s cubic-bezier(0.2, 0.8, 0.2, 1) both",
+        "celebrate-fade": "celebrate-fade 3s ease-out both",
+        "celebrate-burst": "celebrate-burst 1.3s cubic-bezier(0.1, 0.7, 0.3, 1) 150ms both",
         "card-in": "card-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both",
         "fade-in": "fade-in 200ms ease-out both",
       },

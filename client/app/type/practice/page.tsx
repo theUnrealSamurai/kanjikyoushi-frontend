@@ -3,6 +3,7 @@
 import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import Celebration, { parsePreview } from "@/components/Celebration";
 import DueInfo from "@/components/DueInfo";
 import DuePanel from "@/components/DuePanel";
 import ModeSwitch from "@/components/ModeSwitch";
@@ -10,7 +11,7 @@ import PassageView from "@/components/PassageView";
 import WordCard from "@/components/WordCard";
 import { errorMessage, post } from "@/lib/api";
 import { plural } from "@/lib/plural";
-import type { Done, Outcome, Sentence, Token, WordInfo } from "@/lib/types";
+import type { Celebration as CelebrationItem, Done, Outcome, Sentence, Token, WordInfo } from "@/lib/types";
 import { imeKeys } from "@/lib/romaji";
 import { ROLE_BORDER, ROLE_COLOR } from "@/lib/roles";
 import { useTranslator } from "@/lib/useTranslator";
@@ -112,6 +113,23 @@ export default function Practice() {
     const [flash, setFlash] = useState<Flash | null>(null);
     const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const flashCount = useRef(0);
+    // Likewise the milestone celebration (see Celebration): a page-level overlay that times itself out, so it survives
+    // the sentence change and the "done" screen. A new one replaces any still showing (n restarts the animation).
+    const [celebration, setCelebration] = useState<{ n: number; items: CelebrationItem[] } | null>(null);
+    const celebrationCount = useRef(0);
+    const celebrate = useCallback((items: CelebrationItem[]) => {
+        celebrationCount.current += 1;
+        setCelebration({ n: celebrationCount.current, items });
+    }, []);
+    const endCelebration = useCallback(() => setCelebration(null), []);
+    const previewed = useRef(false);
+    useEffect(() => {
+        // Dev only: ?celebrate=level:5,kanji:250 plays that celebration once on load (inlined away in production builds).
+        if (process.env.NODE_ENV === "production" || previewed.current) return;
+        previewed.current = true;
+        const items = parsePreview(window.location.search);
+        if (items.length > 0) celebrate(items);
+    }, [celebrate]);
     const committed = useRef(0);                          // characters matched as of the last committed (non-composing) text
     const flashed = useRef<Record<string, Outcome>>({});  // what was flashed for the sentence on screen, to check the server's answer
     const helpUsed = useRef(false);                       // help mode was on at some point in this sentence
@@ -209,6 +227,7 @@ export default function Practice() {
                 console.warn("Flashed grades differ from the server's", Object.fromEntries(mismatched.map((id) => [id, { flashed: flashedBefore[id] ?? null, graded: applied[id] ?? null }])));
             }
         }
+        if (payload.celebrate && payload.celebrate.length > 0) celebrate(payload.celebrate);
         // From N2 on, picking a sentence is slow on the phone: the server prepares the next one while this is typed.
         if (!finished && (payload as Sentence).prefetch) post("/type/prefetch").catch(() => {});
         setLoadError(null);
@@ -225,7 +244,7 @@ export default function Practice() {
         setSkipped(new Set());
         setInputHint(null);
         setHelp(false);
-    }, [router]);
+    }, [router, celebrate]);
 
     useEffect(() => {
         let stale = false;
@@ -477,6 +496,7 @@ export default function Practice() {
                 if (!window.getSelection()?.toString()) inputRef.current?.focus();
             }}
         >
+            {celebration && <Celebration key={celebration.n} items={celebration.items} onDone={endCelebration} />}
             <div className="min-h-0 flex-1 overflow-y-auto">
                 <div className="mx-auto w-full max-w-4xl px-4 pb-8 pt-5">
                     <div className="flex flex-wrap items-center justify-between gap-3 text-sm">

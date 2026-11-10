@@ -70,6 +70,10 @@ export interface PassageView {
     lines: PassageLine[];
 }
 
+/** A kanji milestone the sentence just submitted reached: a JLPT level finished (every kanji of it the app can teach
+ *  is covered), or the count of kanji learned here passing 100, 250, 500, 1000, 1500, 2000, then every 500. */
+export type Celebration = { kind: "level"; level: number } | { kind: "kanji"; count: number };
+
 export interface Sentence {
     sentence_id: number;
     text: string;
@@ -82,12 +86,14 @@ export interface Sentence {
     stats: Stats;
     passage: PassageView | null;  // set in paragraph mode; null for a single sentence
     graded?: Record<string, Outcome>;  // only on a /type/submit response: what the server applied to the sentence just submitted
+    celebrate?: Celebration[];  // as graded: milestones that submit reached, levels first (empty when none)
     prefetch?: boolean;  // ask /type/prefetch to prepare the next sentence while this one is typed (learners from N2 on)
 }
 
 export interface Done {
     done: true;
     graded?: Record<string, Outcome>;  // as on Sentence
+    celebrate?: Celebration[];  // as on Sentence
     corpus_empty: boolean;
     stats: Stats;
 }

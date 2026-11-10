@@ -6,6 +6,17 @@ interface Props {
 }
 
 const MAX_MEANINGS = 6;
+const MAX_KANJI_MEANINGS = 3;
+const MAX_READINGS = 3;
+
+/** KANJIDIC marks okurigana with "." and prefixes/suffixes with "-": むす.ぶ shows as むす(ぶ), -あ.け as あ(け); duplicates dropped. */
+function cleanKun(readings: string[]): string[] {
+    const cleaned = readings.map((reading) => {
+        const [stem, tail] = reading.replace(/^-|-$/g, "").split(".");
+        return tail ? `${stem}(${tail})` : stem;
+    });
+    return [...new Set(cleaned)];
+}
 
 const ROLE_STYLE = {
     learning: { edge: "border-l-new-word", badge: "bg-new-word/15 text-new-word", label: "new" },
@@ -51,16 +62,28 @@ export default function WordCard({ word, role }: Props) {
 
             {word.kanji.length > 0 && (
                 <ul className="mt-3 space-y-1.5 border-t border-border pt-2">
-                    {word.kanji.map((item) => (
-                        <li key={item.kanji} className="flex items-baseline gap-2.5">
-                            <span className="w-6 shrink-0 text-center font-jp text-xl font-bold leading-none">{item.kanji}</span>
-                            <span className="min-w-0 font-sans text-xs leading-snug text-muted">
-                                {item.on_readings.length > 0 && <span className="mr-2"><b className="font-semibold text-text/80">on</b> <span lang="ja" className="font-jp">{item.on_readings.join("、")}</span></span>}
-                                {item.kun_readings.length > 0 && <span className="mr-2"><b className="font-semibold text-text/80">kun</b> <span lang="ja" className="font-jp">{item.kun_readings.join("、")}</span></span>}
-                                {item.meanings.length > 0 && <span lang="en">{item.meanings.join(", ")}</span>}
-                            </span>
-                        </li>
-                    ))}
+                    {word.kanji.map((item) => {
+                        const on = item.on_readings.slice(0, MAX_READINGS);
+                        const kun = cleanKun(item.kun_readings).slice(0, MAX_READINGS);
+                        return (
+                            <li key={item.kanji} className="flex items-baseline gap-2.5">
+                                <span className="w-6 shrink-0 text-center font-jp text-xl font-bold leading-none">{item.kanji}</span>
+                                <div className="min-w-0 flex-1">
+                                    {item.meanings.length > 0 && (
+                                        <p lang="en" className="break-words font-sans text-sm leading-snug text-text">
+                                            {item.meanings.slice(0, MAX_KANJI_MEANINGS).join(", ")}
+                                        </p>
+                                    )}
+                                    {(on.length > 0 || kun.length > 0) && (
+                                        <p className="break-words font-sans text-xs leading-snug text-muted">
+                                            {on.length > 0 && <span className="mr-2 inline-block"><b className="font-semibold text-text/80">on</b> <span lang="ja" className="font-jp">{on.join("、")}</span></span>}
+                                            {kun.length > 0 && <span className="mr-2 inline-block"><b className="font-semibold text-text/80">kun</b> <span lang="ja" className="font-jp">{kun.join("、")}</span></span>}
+                                        </p>
+                                    )}
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </article>
